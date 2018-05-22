@@ -45,35 +45,22 @@ int lex(char *input)
 {
     char *buffer;
     long length;
-    char *token[132];
     FILE *fp;
-    int c, i = 0;
-    char *delim, file_string[132];
-
+    char *delim;
+    
     fp = fopen(input, "r");
     delim = "\0";
-       
+    
     if (fp) {
         fseek (fp, 0, SEEK_END);
         length = ftell (fp);
         fseek (fp, 0, SEEK_SET);
         buffer = malloc (length);
-        
         if (buffer) {
             fread (buffer, 1, length, fp);
         }
         fclose (fp);
     }
-
-    if (buffer) {
-        token[0] = strtok( buffer, delim );
-        while(token[i] != NULL && i < 132) {
-            i++;
-            token[i] = strtok( buffer, delim );
-        }
-    }
-
-    printf("This is token[1], %s\n", token[3]);
 
     return 0;
 }
@@ -81,12 +68,13 @@ int lex(char *input)
 int main(int argc, char *argv[])
 {
     char *input;
-    
-    if(argv[1] != NULL)
+    if(argv[1] != NULL) {
         input = argv[1];
         lex(input); 
-//   parse();    
-    
+    } else {
+        input = "Please give an input\n";
+        printf("%s", input);
+    } 
     return 0;
 }
 
