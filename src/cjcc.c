@@ -81,32 +81,23 @@ int scan(char * buf)
 {
     int lines = 0;
     int i;
-    int s;
+    int s = 0;
     Token arr[10];
     int a = 0;
     char tmp[10];
     char peek = i + 1;
 
     for(i = 0; i < strlen(buf); i++) {
-        
-        if(buf[i] != '\n' && buf[i] != ' ') {
-           if(peek != '\n' && peek != ' ') {
-            printf("If block\n");
-            printf("Symbol: %c\n", buf[i]);
+        if(buf[i] != ' ' && buf[i] != '\n') {
             tmp[s] = buf[i];
             s++;
-            }
-        } else {
-            printf("<-------->\n");
-            printf("Else block\n");
-            char *p = &tmp[0];
-            printf("The token: %s\n", p);
-            //Token tok = token_init(tmp);
-            //arr[a] = tok;
-            tmp[0] = '\0';
-            s = 0; 
-            a++;
-        }
+        } 
+        if(buf[i] == ' ') {
+            char *p = (char*)&tmp;
+            printf("This is the buffer: %s\n", p);
+            
+        }    
+        
     }
     return 0;
 }
