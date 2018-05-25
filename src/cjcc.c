@@ -1,26 +1,50 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
-#define LEFT_PAREN = '(';
-#define RIGHT_PAREN = ')'; 
-#define AST = '*';
-#define LEFT_BR = '[';
-#define RIGHT_BR = ']';
-#define SEMI_COL = ';';
-#define LEFT_BRAC = '{';
-#define RIGHT_BRAC = '}';
+#define LEFT_PAREN '('
+#define RIGHT_PAREN ')' 
+#define AST '*'
+#define LEFT_BR '['
+#define RIGHT_BR ']'
+#define SEMI_COL ';'
+#define LEFT_BRAC '{'
+#define RIGHT_BRAC '}'
 
-#define RETURN = "return";
-#define INT = "int"; 
-#define MAIN = "main";
-#define ARGV = "argv";
-#define ARGC = "argc";
-#define CHAR = "char";
+#define RETURN "return"
+#define INT "int"
+#define MAIN "main"
+#define ARGV "argv"
+#define ARGC "argc"
+#define CHAR "char"
 
-#define ONE = 1
+const char *symbols[] = { RETURN, INT, MAIN, ARGV, ARGC, CHAR };
 
-#define BUFLEN = 256
+#define BUFLEN 256
+
+//} else {
+  //          printf("Else block\n");
+    //        Token t = { .type = ID, .val = tmp }; 
+      //      arr[a] = t;
+        //    a++;
+        //    tmp[0] = 0; 
+        //    t = EmptyToken;
+       // }
+
+enum {
+    ONE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE
+};
+
+enum {
+    NUM,
+    ID,
+    WORD
+};
 
 enum {
     AST_PLUS,
@@ -41,15 +65,62 @@ typedef struct Ast {
   };
 } Ast;
 
+typedef struct Token {
+    int type;
+    char *val;
+} Token;
+
+Token token_init(char input[])
+{
+    char *p = (char*)&input;
+    Token tok = { .type = ID, .val = input};
+    return tok;
+}
+
+int scan(char * buf)
+{
+    int lines = 0;
+    int i;
+    int s;
+    Token arr[10];
+    int a = 0;
+    char tmp[10];
+    char peek = i + 1;
+
+    for(i = 0; i < strlen(buf); i++) {
+        
+        if(buf[i] != '\n' && buf[i] != ' ') {
+           if(peek != '\n' && peek != ' ') {
+            printf("If block\n");
+            printf("Symbol: %c\n", buf[i]);
+            tmp[s] = buf[i];
+            s++;
+            }
+        } else {
+            printf("<-------->\n");
+            printf("Else block\n");
+            char *p = &tmp[0];
+            printf("The token: %s\n", p);
+            //Token tok = token_init(tmp);
+            //arr[a] = tok;
+            tmp[0] = '\0';
+            s = 0; 
+            a++;
+        }
+    }
+    return 0;
+}
+
 int lex(char *input)
 {
+    Token toks[BUFLEN];
     char *buffer;
     long length;
     FILE *fp;
-    char *delim;
+    int lines;
+    int i = 0;
     
     fp = fopen(input, "r");
-    delim = "\0";
     
     if (fp) {
         fseek (fp, 0, SEEK_END);
@@ -61,7 +132,11 @@ int lex(char *input)
         }
         fclose (fp);
     }
-
+    
+    int h = scan(buffer);
+        //toks[i] = tok;
+        i++;
+     
     return 0;
 }
 
@@ -75,15 +150,5 @@ int main(int argc, char *argv[])
         input = "Please give an input\n";
         printf("%s", input);
     } 
-    return 0;
-}
-
-int parse()
-{
-
-
-
-
-
     return 0;
 }
