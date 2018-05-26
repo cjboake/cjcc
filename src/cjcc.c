@@ -19,18 +19,11 @@
 #define ARGC "argc"
 #define CHAR "char"
 
-const char *symbols[] = { RETURN, INT, MAIN, ARGV, ARGC, CHAR };
+const char *keywords[] = { RETURN, INT, MAIN, ARGV, ARGC, CHAR };
+
+const char symbols[] = { '+', '-', '(', ')', ';', '{', '}' };
 
 #define BUFLEN 256
-
-//} else {
-  //          printf("Else block\n");
-    //        Token t = { .type = ID, .val = tmp }; 
-      //      arr[a] = t;
-        //    a++;
-        //    tmp[0] = 0; 
-        //    t = EmptyToken;
-       // }
 
 enum {
     ONE,
@@ -77,57 +70,58 @@ Token token_init(char input[])
     return tok;
 }
 
-int scan(char * buf)
+int is_keyword(char *word)
 {
-    int lines = 0;
-    int i;
-    int s = 0;
-    Token arr[10];
-    int a = 0;
-    char tmp[10];
-    char peek = i + 1;
-
-    for(i = 0; i < strlen(buf); i++) {
-        if(buf[i] != ' ' && buf[i] != '\n') {
-            tmp[s] = buf[i];
-            s++;
-        } 
-        if(buf[i] == ' ') {
-            char *p = (char*)&tmp;
-            printf("This is the buffer: %s\n", p);
-            
-        }    
-        
+    int r = 0; 
+    int i = 0;
+    for(i = 0; i < 7; i++) {
+       if(strcmp(word, keywords[i]))
+           r = 1;
     }
-    return 0;
+    return r;
+}
+
+int is_symbol(char c)
+{
+    int r = 0; 
+    int i = 0;
+    for(i = 0; i < 8; i++) {
+       if(c == symbols[i])
+           r = 1;
+    }
+    return r;
+}
+
+int read_symbol(char c)
+{
+    int r = 0;
+    if(is_symbol(c))
+        r = 1;
+
+    return r;
+}
+
+int read_keyword(char *c)
+{
+    if(c) {
+    
+    }    
+
+    return 1;
 }
 
 int lex(char *input)
 {
-    Token toks[BUFLEN];
-    char *buffer;
-    long length;
+    char c;
     FILE *fp;
-    int lines;
-    int i = 0;
-    
     fp = fopen(input, "r");
-    
-    if (fp) {
-        fseek (fp, 0, SEEK_END);
-        length = ftell (fp);
-        fseek (fp, 0, SEEK_SET);
-        buffer = malloc (length);
-        if (buffer) {
-            fread (buffer, 1, length, fp);
-        }
-        fclose (fp);
+    if(fp == NULL) {
+        printf("Error, file is null.\n");
+        exit(1);
     }
-    
-    int h = scan(buffer);
-        //toks[i] = tok;
-        i++;
-     
+    while((c = fgetc(fp)) != EOF) {
+        fputc(c, stdout);
+    }
     return 0;
 }
 
