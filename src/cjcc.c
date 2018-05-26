@@ -148,19 +148,40 @@ int fpeek(FILE *stream)
     return c;
 }
 
+void read_string(FILE *fp, char d, char buf[])
+{
+    int i = 0;
+    buf[i] = d;
+    i++;
+    for(;;) {
+        char c = getc(fp); 
+        if(c == EOF)
+            break;
+        if(c == ' ')
+            break;
+        buf[i++] = c;
+    }
+    buf[i] = '\0';
+}
+
 int lex(char *input)
 {
     char c;
+    char buffer[BUFLEN];
     FILE *fp;
     fp = fopen(input, "r");
-    if(fp == NULL) {
-        printf("Error, file is null.\n");
-        exit(1);
-    }
-    while((c = fgetc(fp)) != EOF) {
+    char *y;
+
+    for(;;) {
+        c = fgetc(fp);
         char d = fpeek(fp);
-        printf("This is c: %c\n", c);
-        printf("This is c + 1: %c\n", d);
+        int r = read_input(c);
+        if(r == CH) {
+            read_string(fp, c, buffer);
+            printf("Buffer print: %s\n", buffer);
+        }
+        if(c == EOF)
+            break;
     }
     return 0;
 }
