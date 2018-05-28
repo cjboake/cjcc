@@ -3,15 +3,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define LEFT_PAREN '('
-#define RIGHT_PAREN ')' 
-#define AST '*'
-#define LEFT_BR '['
-#define RIGHT_BR ']'
-#define SEMI_COL ';'
-#define LEFT_BRAC '{'
-#define RIGHT_BRAC '}'
-
 #define RETURN "return"
 #define INT "int"
 #define MAIN "main"
@@ -19,14 +10,14 @@
 #define ARGC "argc"
 #define CHAR "char"
 
+#define BUFLEN 256
+#define SYM 14
+
 const char *keywords[] = { RETURN, INT, MAIN, ARGV, ARGC, CHAR };
 
 const char symbols[] = { '"', ',', '{', '}', '.', '#', '<', '>','+', '-', '(', ')', ';' };
 
 const char lines[] = { '\n', '\t' };
-
-#define BUFLEN 256
-#define SYM 14
 
 enum {
     ONE,
@@ -66,7 +57,22 @@ typedef struct Token {
     char *val;
 } Token;
 
-// check for whitespace
+void check_file(FILE *p)
+{
+    if(p == NULL) {
+        printf("The file failed to open.\n");
+        exit(0);
+    }
+}
+
+int fpeek(FILE *stream)
+{
+    int c;
+    c = fgetc(stream);
+    ungetc(c, stream);
+    return c;
+}
+
 int check_white(char c)
 {
     int r = 0;
@@ -83,21 +89,6 @@ void token_init(char input[])
     //return tok;
 }
 
-// TODO make string
-char *make_string(char c)
-{
-    int i = 0;
-    char tmp[32];
-    char *str;
-    
-    tmp[i] = c;
-    i++;
-    str = &tmp[0];
-    return str;
-}
-
-
-// is string in keyword table
 int is_keyword(char *word)
 {
     int r = 0; 
@@ -111,7 +102,6 @@ int is_keyword(char *word)
 
 // TODO is an operator
 
-// is symbol a reserved symbol
 int is_symbol(char c)
 {
     int r = 0; 
@@ -123,7 +113,6 @@ int is_symbol(char c)
     return r;
 }
 
-// analyze symbols as they are passed through
 int read_input(char c)
 {
     char *buf;
@@ -140,12 +129,10 @@ int read_input(char c)
     return r;
 }
 
-int fpeek(FILE *stream)
+void read_binop()
 {
-    int c;
-    c = fgetc(stream);
-    ungetc(c, stream);
-    return c;
+
+
 }
 
 void read_string(FILE *fp, char d, char buf[])
@@ -164,37 +151,75 @@ void read_string(FILE *fp, char d, char buf[])
     buf[i] = '\0';
 }
 
-int lex(char *input)
+Ast *make_ast_int(int val)
 {
-    char c;
+    Ast *r = malloc(sizeof(Ast));
+    r->type = AST_INT;
+    r->ival = val;
+    return r;
+}
+
+Ast *read_num(FILE *fp, int n)
+{
+    for(;;){
+        int c = getc(fp);    
+        if(!isdigit(c)){
+            ungetc(c, fp);        
+            Ast *t = make_ast_int(n);
+            return t;
+        } 
+    n = n * 10 + (c - '0');
+    }
+}
+
+Ast *scan(char *input)
+{
+    int c;
     char buffer[BUFLEN];
     FILE *fp;
     fp = fopen(input, "r");
     char *y;
-
+    int n;
+    
+    fp = fopen(input, "r");
+    check_file(fp);
     for(;;) {
         c = fgetc(fp);
-        char d = fpeek(fp);
         int r = read_input(c);
+        if(c == EOF)
+            break;
         if(r == CH) {
             read_string(fp, c, buffer);
             printf("Buffer print: %s\n", buffer);
         }
-        if(c == EOF)
-            break;
+        if(r == NUM){
+            n = c - '0';
+            Ast *r = read_num(fp, n);     
+            printf("Scan Ast->ival: %d\n", r->ival);        
+        }    
+        if(r == SYMB) {
+            if(c == '+' || c == '-')
+                printf("Operator\n");        
+        }
     }
     return 0;
 }
 
-int main(int argc, char *argv[])
+void run(char *argv[])
 {
+    int r = 0;
     char *input;
     if(argv[1] != NULL) {
         input = argv[1];
-        lex(input); 
+        Ast *ast = scan(input); 
     } else {
         input = "Please give an input\n";
         printf("%s", input);
-    } 
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    run(argv);
     return 0;
 }
