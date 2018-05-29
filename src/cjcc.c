@@ -37,7 +37,7 @@ enum {
     AST_PLUS,
     AST_MINUS,
     AST_INT,
-    AST_STR,
+    AST_STR
 };
 
 typedef struct Ast {
@@ -81,14 +81,6 @@ int check_white(char c)
     return r;
 }
 
-// pass input and create token
-void token_init(char input[])
-{
-    //char *p = (char*)&input;
-    //Token tok = { .type = ID, .val = input};
-    //return tok;
-}
-
 int is_keyword(char *word)
 {
     int r = 0; 
@@ -99,8 +91,6 @@ int is_keyword(char *word)
     }
     return r;
 }
-
-// TODO is an operator
 
 int is_symbol(char c)
 {
@@ -129,17 +119,27 @@ int read_input(char c)
     return r;
 }
 
-void read_binop()
+Ast *ast_operator(int type, Ast *left, Ast *right)
 {
-
-
+    Ast *o = malloc(sizeof(Ast));
+    o->type = type;
+    o->left = left;
+    o->right = right;
+    return o;
 }
 
-void read_string(FILE *fp, char d, char buf[])
+Ast *ast_string(char buffer[])
 {
+    Ast *r = malloc(sizeof(Ast)); 
+    r->type = AST_STR; 
+    r->sval = buffer; 
+    return r;
+}
+
+Ast *read_string(FILE *fp, char d)
+{
+    char *buf = malloc(BUFLEN);
     int i = 0;
-    buf[i] = d;
-    i++;
     for(;;) {
         char c = getc(fp); 
         if(c == EOF)
@@ -149,6 +149,7 @@ void read_string(FILE *fp, char d, char buf[])
         buf[i++] = c;
     }
     buf[i] = '\0';
+    return ast_string(buf);
 }
 
 Ast *make_ast_int(int val)
@@ -157,6 +158,31 @@ Ast *make_ast_int(int val)
     r->type = AST_INT;
     r->ival = val;
     return r;
+}
+
+Ast *make_ast_node(Ast *l, Ast *r, int op)
+{
+    Ast *node = malloc(sizeof(Ast));
+    node->type = op;
+    node->left = l;
+    node->right = r;
+    
+    printf("Type: %d\n", node->type);
+    printf("Left int: %d\n", node->left->ival);
+    printf("Right int: %d\n", node->right->ival);
+    return node;
+}
+
+int skip_space(FILE *fp, char d)
+{
+    int c;
+    while((c = fgetc(fp)) != EOF) {
+        if(isspace(c))
+            continue;
+        else 
+            return c;
+    }
+    return 1;
 }
 
 Ast *read_num(FILE *fp, int n)
@@ -172,37 +198,71 @@ Ast *read_num(FILE *fp, int n)
     }
 }
 
+Ast *read_primitive(FILE *fp, int c)
+{
+    Ast *t = malloc(sizeof(Ast));
+    if(isdigit(c)){
+        return read_num(fp, c - '0');
+    }else if(c == '"'){
+        return read_string(fp, c);
+    }
+    return t;
+}
+
+Ast *read_expr2(FILE *fp, Ast *left)
+{
+    int op;
+    int c;
+    
+    c = fgetc(fp);
+    int d = skip_space(fp, c);
+    if(d == '+') op = AST_PLUS;
+    if(d == '-') op = AST_MINUS;
+    int e = skip_space(fp, d);
+    Ast *right = read_primitive(fp, e);
+    return make_ast_node(left, right, op);
+}
+
+void print_ast(Ast *ast)
+{
+switch (ast->type) {
+     case AST_PLUS:
+       printf("(+ ");
+       goto print_op;
+     case AST_MINUS:
+       printf("(- ");
+     print_op:
+       print_ast(ast->left);
+       printf(" ");
+       print_ast(ast->right);
+       printf(")");
+       break;
+    case AST_INT:
+       printf("%d", ast->ival);
+ break;
+    case AST_STR:
+       printf("%s", ast->sval);
+       break;
+     default:
+       printf("should not reach here\n");
+   }
+}
+
+Ast *read_expr(FILE *p)
+{
+    int c = fgetc(p);
+    Ast *left = read_primitive(p, c);
+    return read_expr2(p, left); 
+}
+
 Ast *scan(char *input)
 {
-    int c;
     char buffer[BUFLEN];
     FILE *fp;
     fp = fopen(input, "r");
-    char *y;
-    int n;
-    
-    fp = fopen(input, "r");
     check_file(fp);
-    for(;;) {
-        c = fgetc(fp);
-        int r = read_input(c);
-        if(c == EOF)
-            break;
-        if(r == CH) {
-            read_string(fp, c, buffer);
-            printf("Buffer print: %s\n", buffer);
-        }
-        if(r == NUM){
-            n = c - '0';
-            Ast *r = read_num(fp, n);     
-            printf("Scan Ast->ival: %d\n", r->ival);        
-        }    
-        if(r == SYMB) {
-            if(c == '+' || c == '-')
-                printf("Operator\n");        
-        }
-    }
-    return 0;
+    Ast *ast = read_expr(fp);
+    return ast;
 }
 
 void run(char *argv[])
@@ -211,10 +271,12 @@ void run(char *argv[])
     char *input;
     if(argv[1] != NULL) {
         input = argv[1];
-        Ast *ast = scan(input); 
+        Ast *ast = scan(input);
+        //print_ast(ast);
     } else {
         input = "Please give an input\n";
         printf("%s", input);
+        exit(0);
     }
 }
 

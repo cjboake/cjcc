@@ -86,3 +86,8 @@ intermediate steps should be be easier to to accomplish
 - The current strategy is more like the typical switch statement parser, and although I think that 
 will ultimately come into play, it's not the best way to think about the design, from a recursive
 standpoint
+
+*End Note:
+---------
+- Just need to get the white space skipping down. If I can do that, it will be able to process simple
+equations into an AST, as well as strings.
