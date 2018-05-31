@@ -229,27 +229,27 @@ void print_single_node(Ast *ast)
 
 void print_ast(Ast *ast)
 {
-switch (ast->type) {
-     case AST_PLUS:
-       printf("(+ ");
-       goto print_op;
-     case AST_MINUS:
-       printf("(- ");
-     print_op:
-       print_ast(ast->left);
-       printf(" ");
-       print_ast(ast->right);
-       printf(")");
-       break;
-    case AST_INT:
-       printf("%d", ast->ival);
- break;
-    case AST_STR:
-       printf("%s", ast->sval);
-       break;
-     default:
-       printf("should not reach here\n");
-   }
+    switch (ast->type) {
+        case AST_PLUS:
+            printf("(+ ");
+            goto print_op;
+        case AST_MINUS:
+            printf("(- ");
+        print_op:
+            print_ast(ast->left);
+            printf(" ");
+            print_ast(ast->right);
+            printf(")");
+            break;
+        case AST_INT:
+            printf("%d", ast->ival);
+            break;
+        case AST_STR:
+            printf("%s", ast->sval);
+            break;
+        default:
+            printf("should not reach here\n");
+    }
 }
 
 Ast *read_expr(FILE *p)
@@ -315,10 +315,20 @@ void compile(Ast *ast)
 void run(char *argv[])
 {
     int r = 0;
+    int p = 0;
     char *input;
+    
+    if(argv[2] != NULL && !strcmp(argv[2], "-a"))
+        p = 1;    
     if(argv[1] != NULL) {
         input = argv[1];
         Ast *ast = scan(input);
+       
+        if(p == 1) {
+            printf("-> Print AST <-\n");
+            print_ast(ast);
+            printf("\n\n");
+        }
         compile(ast);
     } else {
         input = "Please give an input\n";

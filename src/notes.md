@@ -116,4 +116,9 @@ but man was it awesome to see him. I then had dinner with Cody, which was also g
 update: Well that wasn't too hard: It now produces assembly for basic (+/-) arithmetic operations. Feels good!
 -------
 - Took just over two weeks to get to this point. Not bad.
-
+- As far as next steps, I'm considering following the Gholoum paper and perhaps really 
+rounding out my handling of integers. It follows steps that are "one component at a time" and it may
+bet a good way to get all elements of the compiler introduced in steps, all while having them
+function completely on their own
+- *Note: identifying functions vs. keywords has been a concern of mine for a while now; answer, simply treat them the same and if you hit a '(' they are a function. Duh.
+- Holy shit, the recursive nature of this machine is really starting to hit me, which makes you realize the power that lies within these functions
