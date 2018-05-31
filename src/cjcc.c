@@ -34,6 +34,7 @@ enum {
 };
 
 enum {
+    AST_OP,
     AST_PLUS,
     AST_MINUS,
     AST_INT,
@@ -166,10 +167,6 @@ Ast *make_ast_node(Ast *l, Ast *r, int op)
     node->type = op;
     node->left = l;
     node->right = r;
-    
-    printf("Type: %d\n", node->type);
-    printf("Left int: %d\n", node->left->ival);
-    printf("Right int: %d\n", node->right->ival);
     return node;
 }
 
@@ -182,7 +179,7 @@ int skip_space(FILE *fp, char d)
         else 
             return c;
     }
-    return 1;
+    return -1;
 }
 
 Ast *read_num(FILE *fp, int n)
@@ -221,6 +218,13 @@ Ast *read_expr2(FILE *fp, Ast *left)
     int e = skip_space(fp, d);
     Ast *right = read_primitive(fp, e);
     return make_ast_node(left, right, op);
+}
+
+void print_single_node(Ast *ast)
+{
+    printf("Ast Operator -> %d\n", ast->type);
+    printf("Ast Left -> %d\n", ast->left->ival);
+    printf("Ast Right -> %d\n", ast->right->ival);
 }
 
 void print_ast(Ast *ast)
@@ -265,6 +269,49 @@ Ast *scan(char *input)
     return ast;
 }
 
+void assembly_header()
+{
+    printf("ASSEMBLY CODE\n\n");
+    printf(".section    __TEXT,__text,regular,pure_instructions\n");
+    printf(".macosx_version_min 10, 13\n");
+    printf(".intel_syntax noprefix\n");
+    printf(".globl  _main\n");
+    printf(".p2align    4, 0x90\n\n");
+    printf("_main:\n");
+}
+
+void emit_intexpr(Ast *ast)
+{
+    if(ast->type == AST_INT)
+        printf("move rax, %d\n", ast->ival);
+}
+
+void emit_op(Ast *ast)
+{
+    char *op;
+    if(ast->type == AST_PLUS)
+        op = "add";
+    if(ast->type == AST_MINUS)
+        op = "sub";
+    emit_intexpr(ast->left);
+    if(ast->right->type == AST_INT)
+        printf("mov rbx, %d\n", ast->right->ival);
+    printf("%s rax, rbx\n", op);
+    printf("mov rbi, 0\n");
+    printf("ret\n");
+}
+
+void compile(Ast *ast)
+{
+    assembly_header();
+    if(ast->type == AST_INT) {     
+        emit_intexpr(ast); 
+    }
+    if(ast->type == AST_PLUS || ast->type == AST_MINUS) {
+        emit_op(ast); 
+    }
+}
+
 void run(char *argv[])
 {
     int r = 0;
@@ -272,7 +319,7 @@ void run(char *argv[])
     if(argv[1] != NULL) {
         input = argv[1];
         Ast *ast = scan(input);
-        //print_ast(ast);
+        compile(ast);
     } else {
         input = "Please give an input\n";
         printf("%s", input);
@@ -282,6 +329,7 @@ void run(char *argv[])
 
 int main(int argc, char *argv[])
 {
+    printf("-> cjcc is running <-\n\n");
     run(argv);
     return 0;
 }

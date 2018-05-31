@@ -91,3 +91,29 @@ standpoint
 ---------
 - Just need to get the white space skipping down. If I can do that, it will be able to process simple
 equations into an AST, as well as strings.
+
+5/29/18
+-------
+- The AST forms complete dual-node routes with an operator. I'm going back and forth on what the next
+step to take should be
+- Theoretically, it needs to recurse more complicated statements than this, but I think in the spirit
+of spitting out simple programs, this will do for now
+- I'm going to take a look at code generation now, and see what I need to do to add in semi-colons
+*End Note:
+---------
+- Well, the idea is there for it to spit out some assembly to do some +/- operations. The hard part
+is just getting the recursive traversal of the AST down, but that will just taking playing with it a
+little. I'm really happy with getting even this far though, because I figured out finally how to actually
+reason through the assembly code, and that means I can actually know what to do in the compiler.
+
+5/31/18
+-------
+- I didn't get to do any work on the compiler yesterday as I was in orlando to see Eric for the "Agile Training Lunch",
+but man was it awesome to see him. I then had dinner with Cody, which was also great. We said we love each other for the first time. I was so happy.
+- Today the goal is to get the recursive assembly generation working correctly so that I can actually output the assembly for simple arithmetic.
+- If I can get that going, I will probably start extending the lexer to capably handle keywords, functions, otherwise move forward towards more complete text parsing
+
+update: Well that wasn't too hard: It now produces assembly for basic (+/-) arithmetic operations. Feels good!
+-------
+
+
