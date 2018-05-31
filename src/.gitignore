@@ -1,2 +1,3 @@
-num
-str
+
+# ignore these files
+.t

@@ -115,5 +115,5 @@ but man was it awesome to see him. I then had dinner with Cody, which was also g
 
 update: Well that wasn't too hard: It now produces assembly for basic (+/-) arithmetic operations. Feels good!
 -------
-
+- Took just over two weeks to get to this point. Not bad.
 
