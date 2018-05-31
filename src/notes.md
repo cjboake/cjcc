@@ -100,7 +100,7 @@ step to take should be
 of spitting out simple programs, this will do for now
 - I'm going to take a look at code generation now, and see what I need to do to add in semi-colons
 *End Note:
----------
+----------
 - Well, the idea is there for it to spit out some assembly to do some +/- operations. The hard part
 is just getting the recursive traversal of the AST down, but that will just taking playing with it a
 little. I'm really happy with getting even this far though, because I figured out finally how to actually
@@ -122,3 +122,13 @@ bet a good way to get all elements of the compiler introduced in steps, all whil
 function completely on their own
 - *Note: identifying functions vs. keywords has been a concern of mine for a while now; answer, simply treat them the same and if you hit a '(' they are a function. Duh.
 - Holy shit, the recursive nature of this machine is really starting to hit me, which makes you realize the power that lies within these functions
+
+*End Note:
+----------
+- I went ahead and implemented functions into the Ast, since it's actually pretty easy (and I'm tired)
+- Need to make the string function more general again, since it's used for functions and identifiers
+- I stopped because this will require a fundamental change to my recursion strategy, so that A)The function 
+is in the top node, and B) It actually recurses to the end, making any other functions children of main
+- I'm SUPER happy with how things are going so far though and actually finally feel like I can do this, for sure.
+- Even the assembly generation and whatnot doesn't scare me so much-- I'm beginning to get it. And once I get functions and a few details about them down, I'll be able to compile some real (little) programs!
+- Gonna need to write that assembly to a file soon, and actually get the joy of executing it! *sunglasses*

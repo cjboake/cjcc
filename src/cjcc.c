@@ -38,7 +38,8 @@ enum {
     AST_PLUS,
     AST_MINUS,
     AST_INT,
-    AST_STR
+    AST_STR, 
+    AST_FUNC
 };
 
 typedef struct Ast {
@@ -49,6 +50,11 @@ typedef struct Ast {
     struct {
       struct Ast *left;
       struct Ast *right;
+    };
+    struct {
+        char *fname;
+        int nargs;
+        struct Ast **args;
     };
   };
 } Ast;
@@ -137,20 +143,14 @@ Ast *ast_string(char buffer[])
     return r;
 }
 
-Ast *read_string(FILE *fp, char d)
+Ast *make_ast_func(char *name, int n, Ast **a)
 {
-    char *buf = malloc(BUFLEN);
-    int i = 0;
-    for(;;) {
-        char c = getc(fp); 
-        if(c == EOF)
-            break;
-        if(c == ' ')
-            break;
-        buf[i++] = c;
-    }
-    buf[i] = '\0';
-    return ast_string(buf);
+    Ast *ast = malloc(sizeof(Ast));
+    ast->type = AST_FUNC;
+    ast->fname = name;
+    ast->nargs = n;
+    ast->args = a;
+    return ast;
 }
 
 Ast *make_ast_int(int val)
@@ -168,6 +168,39 @@ Ast *make_ast_node(Ast *l, Ast *r, int op)
     node->left = l;
     node->right = r;
     return node;
+}
+
+Ast *read_func_args(FILE *fp, char *buf)
+{
+    Ast **args = malloc(sizeof(Ast));
+    int c = fgetc(fp);   
+    for(;;){
+        if(c == ')')
+            break;
+    }
+    return make_ast_func(buf, 0, args);
+}
+
+Ast *read_func_identifier(FILE *fp, char d)
+{
+    char *buf = malloc(BUFLEN);
+    Ast *a = malloc(sizeof(Ast));
+    buf[0] = d;
+    int i = 1;
+    for(;;) {
+        char c = getc(fp); 
+        if(c == EOF)
+            break;
+        if(c == ' ')
+            break;
+        if(c == '('){
+            buf[i] = '\0';
+            return read_func_args(fp, buf);
+        }
+        buf[i++] = c;
+    }
+    buf[i] = '\0';
+    return ast_string(buf);
 }
 
 int skip_space(FILE *fp, char d)
@@ -200,8 +233,10 @@ Ast *read_primitive(FILE *fp, int c)
     Ast *t = malloc(sizeof(Ast));
     if(isdigit(c)){
         return read_num(fp, c - '0');
+    }else if(isalpha(c)){
+        return read_func_identifier(fp, c);
     }else if(c == '"'){
-        return read_string(fp, c);
+        return read_func_identifier(fp, c);
     }
     return t;
 }
@@ -239,6 +274,10 @@ void print_ast(Ast *ast)
             print_ast(ast->left);
             printf(" ");
             print_ast(ast->right);
+            printf(")");
+            break;
+        case AST_FUNC:
+            printf("%s(", ast->fname);
             printf(")");
             break;
         case AST_INT:
@@ -317,19 +356,18 @@ void run(char *argv[])
     int r = 0;
     int p = 0;
     char *input;
-    
     if(argv[2] != NULL && !strcmp(argv[2], "-a"))
-        p = 1;    
+        p = 1;
     if(argv[1] != NULL) {
         input = argv[1];
         Ast *ast = scan(input);
-       
+        printf("ast left ival: %d\n", ast->right->left->ival); 
         if(p == 1) {
             printf("-> Print AST <-\n");
             print_ast(ast);
             printf("\n\n");
         }
-        compile(ast);
+        //compile(ast);
     } else {
         input = "Please give an input\n";
         printf("%s", input);
