@@ -132,3 +132,13 @@ is in the top node, and B) It actually recurses to the end, making any other fun
 - I'm SUPER happy with how things are going so far though and actually finally feel like I can do this, for sure.
 - Even the assembly generation and whatnot doesn't scare me so much-- I'm beginning to get it. And once I get functions and a few details about them down, I'll be able to compile some real (little) programs!
 - Gonna need to write that assembly to a file soon, and actually get the joy of executing it! *sunglasses*
+
+
+6/11/8
+------
+- Today's goal is to make sure that the AST is handling functions correctly, and to get started on the assembly
+generation for them. 
+- My previous thought about needing to chagne the recursion strategy might not be correct, it turns out, and I may indeed be able to have the function call (name) as a L_Node. We'll see today.
+- I also need to make the func_or_ident() more generic, since it's going to be used for multiple things now
+
+- I was wrong. Fundamental changes to the recursion structure required.

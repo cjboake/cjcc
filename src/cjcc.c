@@ -42,9 +42,14 @@ enum {
     AST_FUNC
 };
 
+typedef struct Var {
+    char *name;
+} Var;
+
 typedef struct Ast {
   int type;
   union {
+    Var *var;
     int ival;
     char *sval;
     struct {
@@ -143,8 +148,23 @@ Ast *ast_string(char buffer[])
     return r;
 }
 
+Var *make_var(char *n)
+{
+    Var *v = malloc(sizeof(Var));
+    v->name = n;
+    return v;
+}
+
+Ast *make_ast_var(Var *v)
+{
+    Ast *ast = malloc(sizeof(Ast));
+    ast->var = v;
+    return ast;
+}
+
 Ast *make_ast_func(char *name, int n, Ast **a)
 {
+    printf("In make ast func.\n");
     Ast *ast = malloc(sizeof(Ast));
     ast->type = AST_FUNC;
     ast->fname = name;
@@ -172,6 +192,7 @@ Ast *make_ast_node(Ast *l, Ast *r, int op)
 
 Ast *read_func_args(FILE *fp, char *buf)
 {
+    printf("In read_func_args.\n");
     Ast **args = malloc(sizeof(Ast));
     int c = fgetc(fp);   
     for(;;){
@@ -181,26 +202,21 @@ Ast *read_func_args(FILE *fp, char *buf)
     return make_ast_func(buf, 0, args);
 }
 
-Ast *read_func_identifier(FILE *fp, char d)
+char *read_ident(FILE *fp, char d)
 {
     char *buf = malloc(BUFLEN);
-    Ast *a = malloc(sizeof(Ast));
     buf[0] = d;
     int i = 1;
     for(;;) {
         char c = getc(fp); 
-        if(c == EOF)
+        if(!isalnum(c)){
+            ungetc(c, fp);
             break;
-        if(c == ' ')
-            break;
-        if(c == '('){
-            buf[i] = '\0';
-            return read_func_args(fp, buf);
         }
         buf[i++] = c;
     }
     buf[i] = '\0';
-    return ast_string(buf);
+    return buf;
 }
 
 int skip_space(FILE *fp, char d)
@@ -213,6 +229,16 @@ int skip_space(FILE *fp, char d)
             return c;
     }
     return -1;
+}
+
+Ast *func_or_ident(FILE *fp, char d)
+{
+    char *name = read_ident(fp, d);
+    char c = skip_space(fp, d);
+    if(c == '(')
+        return read_func_args(fp, name); 
+    else
+        return make_ast_var(make_var(name));
 }
 
 Ast *read_num(FILE *fp, int n)
@@ -234,9 +260,10 @@ Ast *read_primitive(FILE *fp, int c)
     if(isdigit(c)){
         return read_num(fp, c - '0');
     }else if(isalpha(c)){
-        return read_func_identifier(fp, c);
+        return func_or_ident(fp, c);
     }else if(c == '"'){
-        return read_func_identifier(fp, c);
+        printf("tmp\n");
+        //return func_or_ident(fp, c);
     }
     return t;
 }
@@ -245,21 +272,14 @@ Ast *read_expr2(FILE *fp, Ast *left)
 {
     int op;
     int c;
-    
     c = fgetc(fp);
     int d = skip_space(fp, c);
+    printf("read_expr2 d: %c\n", d);    
     if(d == '+') op = AST_PLUS;
     if(d == '-') op = AST_MINUS;
     int e = skip_space(fp, d);
     Ast *right = read_primitive(fp, e);
     return make_ast_node(left, right, op);
-}
-
-void print_single_node(Ast *ast)
-{
-    printf("Ast Operator -> %d\n", ast->type);
-    printf("Ast Left -> %d\n", ast->left->ival);
-    printf("Ast Right -> %d\n", ast->right->ival);
 }
 
 void print_ast(Ast *ast)
