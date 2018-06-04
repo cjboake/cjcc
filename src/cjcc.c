@@ -428,7 +428,7 @@ void emit_func(Ast *ast)
 {
     printf("_%s:\n", ast->fname);
     printf("\tpush rbp\n");
-    if(ast->body->type == '+') 
+    if(ast->body->type == '+' || ast->body->type == '-') 
         emit_op(ast->body);
 }
 
