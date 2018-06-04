@@ -71,7 +71,6 @@ typedef struct Token {
 Ast *read_expr(FILE *p);
 Ast *read_primitive(FILE *fp, int c);
 void print_ast(Ast *ast);
-Ast *read_expr2(FILE *fp);
 Ast *rd_expr2(FILE *fp);
 
 void check_file(FILE *p)
@@ -139,7 +138,10 @@ int read_input(char c)
 Ast *make_ast_operator(int type)
 {
     Ast *op = malloc(sizeof(Ast));
-    op->type = type;
+    if(type == '+')
+        op->type = AST_PLUS;
+    else if(type == '-')
+        op->type = AST_MINUS; 
     return op;
 }
 
@@ -196,7 +198,7 @@ Ast *make_ast_head(Ast *func, FILE *fp)
 Ast *make_ast_node(Ast *l, Ast *r, int op)
 {
     Ast *nd = malloc(sizeof(Ast));
-    nd->type = op;
+    nd->type = op; 
     nd->left = l;
     nd->right = r;
     return nd;
@@ -352,6 +354,7 @@ void print_ast(Ast *ast)
         case AST_FUNC:
             printf("%s(", ast->fname);
             printf(")");
+            print_ast(ast->body);
             break;
         case AST_INT:
             printf("%d", ast->ival);
@@ -397,33 +400,44 @@ void assembly_header()
     printf(".intel_syntax noprefix\n");
     printf(".globl  _main\n");
     printf(".p2align    4, 0x90\n\n");
-    printf("_main:\n");
 }
 
 void emit_intexpr(Ast *ast)
 {
     if(ast->type == AST_INT)
-        printf("move rax, %d\n", ast->ival);
+        printf("\tmov rax, %d\n", ast->ival);
 }
 
 void emit_op(Ast *ast)
 {
     char *op;
-    if(ast->type == AST_PLUS)
+    if(ast->type == '+')
         op = "add";
-    if(ast->type == AST_MINUS)
+    if(ast->type == '-')
         op = "sub";
     emit_intexpr(ast->left);
     if(ast->right->type == AST_INT)
-        printf("mov rbx, %d\n", ast->right->ival);
-    printf("%s rax, rbx\n", op);
-    printf("mov rbi, 0\n");
+        printf("\tmov rbx, %d\n\t", ast->right->ival);
+    printf("%s rax, rbx\n\t", op);
+    printf("mov rbi, 0\n\t");
+    printf("pop rbp\n\t");
     printf("ret\n");
+}
+
+void emit_func(Ast *ast)
+{
+    printf("_%s:\n", ast->fname);
+    printf("\tpush rbp\n");
+    if(ast->body->type == '+') 
+        emit_op(ast->body);
 }
 
 void compile(Ast *ast)
 {
     assembly_header();
+    if(ast->type == AST_FUNC) {     
+        emit_func(ast); 
+    }
     if(ast->type == AST_INT) {     
         emit_intexpr(ast); 
     }
@@ -447,7 +461,7 @@ void run(char *argv[])
             print_ast(ast);
             printf("\n\n");
         }
-        //compile(ast);
+        compile(ast);
     } else {
         input = "Please give an input\n";
         printf("%s", input);
