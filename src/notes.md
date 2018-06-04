@@ -1,4 +1,4 @@
-- Compiler Parsing Steps -
+ Compiler Parsing Steps -
 # A general outline of the necessary operations for converting a stream of chars into tokens
 # for the purpose of later parsing into your choice of syntax tree
 
@@ -134,7 +134,7 @@ is in the top node, and B) It actually recurses to the end, making any other fun
 - Gonna need to write that assembly to a file soon, and actually get the joy of executing it! *sunglasses*
 
 
-6/11/8
+6/1/18
 ------
 - Today's goal is to make sure that the AST is handling functions correctly, and to get started on the assembly
 generation for them. 
@@ -142,3 +142,22 @@ generation for them.
 - I also need to make the func_or_ident() more generic, since it's going to be used for multiple things now
 
 - I was wrong. Fundamental changes to the recursion structure required.
+
+6/2/18
+------
+- So, it turns out that getting the AST to recurse properly was a bigger issue than I first expected it to be.
+- Keeping the _Function_ as the head node is a challenge, largely because of the fact that my skip_white() is not doing
+precisely what I need it to do. 
+- After returning the token for the function name, the file pointer is still at the same point in the file. I need it to return a char* with the fp ~after~ the token. Without this, you never scan the file, you just read one word over and over.
+- So today will be fixing that, which is suspect will make producing the AST significantly easier. 
+- I'm trying to study the 8cc file reading strategy, but it just isn't clear to me what he's doing there. Perhaps there is some sort of intermediary buffer being used?
+
+6/3/18
+------
+- Okay, the whole AST thing really had me frustrated yesterday-- largely, I couldn't tell if it was recursing over all of the statements I wanted to include in it
+- On top of that I sort of went back and forth on the function-being-on-top strategy, which was bad. It needs to be on top. 
+- So today I'm boing back over this and making sure that I make it happen, because it is clearly correct
+
+- Well I almost lost my mind over this today, and it felt like I didn't make any progress, but I think a few good things came out of it:
+    - I improved the skip_space() so that it doesn't need a return value. This is as it should be.
+    - I realized that after every number, some sort of operator will follow. This in mind, it becomes much easier       to    handle them, because you can assume a symbol will be next.

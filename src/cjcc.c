@@ -13,6 +13,7 @@
 #define BUFLEN 256
 #define SYM 14
 
+int iterator = 0;
 const char *keywords[] = { RETURN, INT, MAIN, ARGV, ARGC, CHAR };
 
 const char symbols[] = { '"', ',', '{', '}', '.', '#', '<', '>','+', '-', '(', ')', ';' };
@@ -34,7 +35,6 @@ enum {
 };
 
 enum {
-    AST_OP,
     AST_PLUS,
     AST_MINUS,
     AST_INT,
@@ -48,18 +48,17 @@ typedef struct Var {
 
 typedef struct Ast {
   int type;
+  struct Ast *left;
+  struct Ast *right;
   union {
     Var *var;
     int ival;
     char *sval;
     struct {
-      struct Ast *left;
-      struct Ast *right;
-    };
-    struct {
         char *fname;
         int nargs;
         struct Ast **args;
+        struct Ast *body;
     };
   };
 } Ast;
@@ -68,6 +67,12 @@ typedef struct Token {
     int type;
     char *val;
 } Token;
+
+Ast *read_expr(FILE *p);
+Ast *read_primitive(FILE *fp, int c);
+void print_ast(Ast *ast);
+Ast *read_expr2(FILE *fp);
+Ast *rd_expr2(FILE *fp);
 
 void check_file(FILE *p)
 {
@@ -131,13 +136,11 @@ int read_input(char c)
     return r;
 }
 
-Ast *ast_operator(int type, Ast *left, Ast *right)
+Ast *make_ast_operator(int type)
 {
-    Ast *o = malloc(sizeof(Ast));
-    o->type = type;
-    o->left = left;
-    o->right = right;
-    return o;
+    Ast *op = malloc(sizeof(Ast));
+    op->type = type;
+    return op;
 }
 
 Ast *ast_string(char buffer[])
@@ -164,12 +167,12 @@ Ast *make_ast_var(Var *v)
 
 Ast *make_ast_func(char *name, int n, Ast **a)
 {
-    printf("In make ast func.\n");
     Ast *ast = malloc(sizeof(Ast));
     ast->type = AST_FUNC;
     ast->fname = name;
     ast->nargs = n;
     ast->args = a;
+    
     return ast;
 }
 
@@ -181,21 +184,29 @@ Ast *make_ast_int(int val)
     return r;
 }
 
+Ast *make_ast_head(Ast *func, FILE *fp)
+{
+    Ast *ast = malloc(sizeof(Ast));
+    ast->type = func->type;
+    ast->fname = func->fname;
+    ast->left = read_expr(fp);
+    return ast;
+}
+
 Ast *make_ast_node(Ast *l, Ast *r, int op)
 {
-    Ast *node = malloc(sizeof(Ast));
-    node->type = op;
-    node->left = l;
-    node->right = r;
-    return node;
+    Ast *nd = malloc(sizeof(Ast));
+    nd->type = op;
+    nd->left = l;
+    nd->right = r;
+    return nd;
 }
 
 Ast *read_func_args(FILE *fp, char *buf)
 {
-    printf("In read_func_args.\n");
     Ast **args = malloc(sizeof(Ast));
-    int c = fgetc(fp);   
     for(;;){
+        int c = fgetc(fp);   
         if(c == ')')
             break;
     }
@@ -205,6 +216,7 @@ Ast *read_func_args(FILE *fp, char *buf)
 char *read_ident(FILE *fp, char d)
 {
     char *buf = malloc(BUFLEN);
+    fseek(fp, -1L, SEEK_CUR); 
     buf[0] = d;
     int i = 1;
     for(;;) {
@@ -219,22 +231,24 @@ char *read_ident(FILE *fp, char d)
     return buf;
 }
 
-int skip_space(FILE *fp, char d)
+void skip_space(FILE *fp)
 {
     int c;
     while((c = fgetc(fp)) != EOF) {
-        if(isspace(c))
+        if(isspace(c)){
             continue;
-        else 
-            return c;
+        }else{ 
+            ungetc(c, fp);
+            break;
+        }
     }
-    return -1;
 }
 
 Ast *func_or_ident(FILE *fp, char d)
 {
     char *name = read_ident(fp, d);
-    char c = skip_space(fp, d);
+    skip_space(fp);
+    int c = fgetc(fp);
     if(c == '(')
         return read_func_args(fp, name); 
     else
@@ -254,8 +268,32 @@ Ast *read_num(FILE *fp, int n)
     }
 }
 
+int priority(char op)
+{
+    switch(op) {
+        case '+':
+            return 0;
+        case '-':
+            return 1;
+        default:
+            return -1;
+    }
+}
+
+void print_nd(Ast *ast)
+{
+    printf("In print_nd ->> ");
+    if(ast->type == AST_FUNC) printf("ast func: %s\n", ast->fname);
+    if(ast->type == AST_INT) printf("ast int: %d\n", ast->ival);
+    if(ast->type == AST_PLUS) printf("ast +: %d\n", ast->type);
+    if(ast->type == AST_MINUS) printf("ast -: %d\n", ast->type);
+}   
+
+
 Ast *read_primitive(FILE *fp, int c)
 {
+    int pr = priority(c); 
+    int d = fgetc(fp);
     Ast *t = malloc(sizeof(Ast));
     if(isdigit(c)){
         return read_num(fp, c - '0');
@@ -263,27 +301,42 @@ Ast *read_primitive(FILE *fp, int c)
         return func_or_ident(fp, c);
     }else if(c == '"'){
         printf("tmp\n");
-        //return func_or_ident(fp, c);
+    }else if(pr >= 0){
+        return make_ast_operator(pr);            
     }
     return t;
 }
 
-Ast *read_expr2(FILE *fp, Ast *left)
+Ast *make_fn(Ast *f, FILE *fp)
 {
-    int op;
-    int c;
-    c = fgetc(fp);
-    int d = skip_space(fp, c);
-    printf("read_expr2 d: %c\n", d);    
-    if(d == '+') op = AST_PLUS;
-    if(d == '-') op = AST_MINUS;
-    int e = skip_space(fp, d);
-    Ast *right = read_primitive(fp, e);
-    return make_ast_node(left, right, op);
+    f->body = rd_expr2(fp); 
+    return f;
+}
+
+Ast *rd_expr2(FILE *fp)
+{
+    skip_space(fp);
+    int c = fgetc(fp);
+    Ast *ast = read_primitive(fp, c);
+
+    if(ast->type == AST_FUNC){
+        ast = make_fn(ast, fp);
+        return ast;
+    }
+
+    skip_space(fp);
+    int d = fgetc(fp);
+    if(d == EOF){
+        return ast;
+    }
+    Ast *right = rd_expr2(fp);
+    Ast *ret = make_ast_node(ast, right, d);
+    return ret;
 }
 
 void print_ast(Ast *ast)
 {
+    printf("-> Print AST : %d\n", ast->type);
     switch (ast->type) {
         case AST_PLUS:
             printf("(+ ");
@@ -307,15 +360,23 @@ void print_ast(Ast *ast)
             printf("%s", ast->sval);
             break;
         default:
-            printf("should not reach here\n");
+            printf("( %c", ast->type);
+            print_ast(ast->left);
+            printf(" ");
+            print_ast(ast->right);
+            printf(" )");
     }
 }
 
 Ast *read_expr(FILE *p)
 {
-    int c = fgetc(p);
-    Ast *left = read_primitive(p, c);
-    return read_expr2(p, left); 
+    Ast *a = malloc(sizeof(Ast));
+    a = rd_expr2(p);
+    printf("AST-> %s\n", a->fname);
+    printf("AST->BODY->TYPE-> %c\n", a->body->type);
+    printf("AST->BODY->LEFT-> %d\n", a->body->left->ival);
+    printf("AST->BODY->RIGHT-> %d\n", a->body->right->ival);
+    return a; 
 }
 
 Ast *scan(char *input)
@@ -381,7 +442,6 @@ void run(char *argv[])
     if(argv[1] != NULL) {
         input = argv[1];
         Ast *ast = scan(input);
-        printf("ast left ival: %d\n", ast->right->left->ival); 
         if(p == 1) {
             printf("-> Print AST <-\n");
             print_ast(ast);
