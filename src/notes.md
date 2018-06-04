@@ -161,3 +161,8 @@ precisely what I need it to do.
 - Well I almost lost my mind over this today, and it felt like I didn't make any progress, but I think a few good things came out of it:
     - I improved the skip_space() so that it doesn't need a return value. This is as it should be.
     - I realized that after every number, some sort of operator will follow. This in mind, it becomes much easier       to    handle them, because you can assume a symbol will be next.
+
+6/4/18
+------
+- Well after a fucking nightmare-and-a-half, I fixed the aforementioned issue with the ast. It came down to a simple matter of how the AST node was layed out... maddening, but I wouldn't have learned how structs work with such detail otherwise.
+- Now, it _actually_ builds recursive nodes, in no small part due to how closely I've examined the algorithm in my fucking combing through the code to fix this
