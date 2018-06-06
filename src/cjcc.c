@@ -319,7 +319,6 @@ Ast *rd_expr2(FILE *fp)
         ast = make_fn(ast, fp);
         return ast;
     }
-
     skip_space(fp);
     int d = fgetc(fp);
     if(d == EOF){
