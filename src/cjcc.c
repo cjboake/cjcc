@@ -12,35 +12,34 @@
 
 #define BUFLEN 256
 #define SYM 14
-
-int iterator = 0;
-const char *keywords[] = { RETURN, INT, MAIN, ARGV, ARGC, CHAR };
-
-const char symbols[] = { '"', ',', '{', '}', '.', '#', '<', '>','+', '-', '(', ')', ';' };
-
-const char lines[] = { '\n', '\t' };
-
-enum {
-    ONE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE
-};
-
-enum {
-    NUM,
-    SYMB,
-    CH
-};
+#define MAX_ARGS 6
 
 enum {
     AST_PLUS,
     AST_MINUS,
     AST_INT,
     AST_STR, 
+    AST_CHAR,
     AST_FUNC
 };
+
+enum {
+    TTYPE_IDENT,
+    TTYPE_PUNCT,
+    TTYPE_INT,
+    TTYPE_CHAR,
+    TTYPE_STRING
+};
+
+typedef struct {
+    int type;
+    union {
+        int ival;
+        char *sval;
+        char punct;
+        char c;
+    };
+} Token;
 
 typedef struct Var {
     char *name;
@@ -63,15 +62,12 @@ typedef struct Ast {
   };
 } Ast;
 
-typedef struct Token {
-    int type;
-    char *val;
-} Token;
-
 Ast *read_expr(FILE *p);
-Ast *read_primitive(FILE *fp, int c);
+Ast *read_primitive(FILE *fp, Token *tok);
 void print_ast(Ast *ast);
 Ast *rd_expr2(FILE *fp);
+void skip_space(FILE *fp); 
+Token *read_token(FILE *fp);
 
 void check_file(FILE *p)
 {
@@ -89,52 +85,6 @@ int fpeek(FILE *stream)
     return c;
 }
 
-int check_white(char c)
-{
-    int r = 0;
-    if(r == ' ')
-        r = 1;
-    return r;
-}
-
-int is_keyword(char *word)
-{
-    int r = 0; 
-    int i = 0;
-    for(i = 0; i < 7; i++) {
-       if(strcmp(word, keywords[i]))
-           r = 1;
-    }
-    return r;
-}
-
-int is_symbol(char c)
-{
-    int r = 0; 
-    int i = 0;
-    for(i = 0; i < SYM; i++) {
-       if(c == symbols[i])
-           r = 1;
-    }
-    return r;
-}
-
-int read_input(char c)
-{
-    char *buf;
-    int r = 0;
-    int t = 0; 
-    if(c == '\n' || c == '\t')
-        printf("This is either a newline or tab.\n");
-    if(is_symbol(c))
-        r = SYMB;
-    if(isalpha(c)) 
-        r = CH;
-    if(isdigit(c))
-        r = NUM;
-    return r;
-}
-
 Ast *make_ast_operator(int type)
 {
     Ast *op = malloc(sizeof(Ast));
@@ -149,8 +99,7 @@ Ast *ast_string(char buffer[])
 {
     Ast *r = malloc(sizeof(Ast)); 
     r->type = AST_STR; 
-    r->sval = buffer; 
-    return r;
+    r->sval = buffer; return r;
 }
 
 Var *make_var(char *n)
@@ -186,15 +135,6 @@ Ast *make_ast_int(int val)
     return r;
 }
 
-Ast *make_ast_head(Ast *func, FILE *fp)
-{
-    Ast *ast = malloc(sizeof(Ast));
-    ast->type = func->type;
-    ast->fname = func->fname;
-    ast->left = read_expr(fp);
-    return ast;
-}
-
 Ast *make_ast_node(Ast *l, Ast *r, int op)
 {
     Ast *nd = malloc(sizeof(Ast));
@@ -208,29 +148,39 @@ Ast *read_func_args(FILE *fp, char *buf)
 {
     Ast **args = malloc(sizeof(Ast));
     for(;;){
-        int c = fgetc(fp);   
-        if(c == ')')
+        skip_space(fp);
+        Token *tok = read_token(fp);
+        if(tok->punct == ')')
             break;
     }
+    Ast *a = malloc(sizeof(Ast));
     return make_ast_func(buf, 0, args);
 }
 
-char *read_ident(FILE *fp, char d)
+Token *make_string_tok(char *string)
+{
+    Token *tok = malloc(sizeof(Token));
+    tok->type = TTYPE_IDENT;
+    tok->sval = string; 
+    return tok;
+}
+
+Token *read_ident(FILE *fp, char d)
 {
     char *buf = malloc(BUFLEN);
-    fseek(fp, -1L, SEEK_CUR); 
+    //fseek(fp, -1L, SEEK_CUR); 
     buf[0] = d;
     int i = 1;
     for(;;) {
         char c = getc(fp); 
-        if(!isalnum(c)){
+        if(!isalnum(c) || c == '"'){
             ungetc(c, fp);
             break;
         }
         buf[i++] = c;
     }
     buf[i] = '\0';
-    return buf;
+    return make_string_tok(buf);
 }
 
 void skip_space(FILE *fp)
@@ -246,27 +196,43 @@ void skip_space(FILE *fp)
     }
 }
 
-Ast *func_or_ident(FILE *fp, char d)
+Ast *func_or_ident(FILE *fp, Token *tok)
 {
-    char *name = read_ident(fp, d);
+    char *name = tok->sval;
     skip_space(fp);
-    int c = fgetc(fp);
-    if(c == '(')
+    Token *t = read_token(fp);
+    if(t->punct == '('){
         return read_func_args(fp, name); 
-    else
+    } else {
         return make_ast_var(make_var(name));
+    }
 }
 
-Ast *read_num(FILE *fp, int n)
+Token *make_punc_tok(int c)
+{
+    Token *tok = malloc(sizeof(Token));
+    tok->type = TTYPE_PUNCT;
+    tok->punct = c;
+    return tok;
+}
+
+Token *make_int_tok(int n)
+{
+    Token *r = malloc(sizeof(Token));
+    r->type = TTYPE_INT; 
+    r->ival = n;
+    return r;
+}
+
+Token *read_num(FILE *fp, int n)
 {
     for(;;){
         int c = getc(fp);    
-        if(!isdigit(c)){
-            ungetc(c, fp);        
-            Ast *t = make_ast_int(n);
-            return t;
-        } 
-    n = n * 10 + (c - '0');
+        if(!isdigit(c) || c == ';'){
+            Token *tok = make_int_tok(n);
+            return tok;
+        } // else if c == something else, untermed? 
+        n = n * 10 + (c - '0');
     }
 }
 
@@ -291,22 +257,37 @@ void print_nd(Ast *ast)
     if(ast->type == AST_MINUS) printf("ast -: %d\n", ast->type);
 }   
 
-
-Ast *read_primitive(FILE *fp, int c)
+Ast *make_ast_char(char c)
 {
-    int pr = priority(c); 
-    int d = fgetc(fp);
-    Ast *t = malloc(sizeof(Ast));
-    if(isdigit(c)){
-        return read_num(fp, c - '0');
-    }else if(isalpha(c)){
-        return func_or_ident(fp, c);
-    }else if(c == '"'){
-        printf("tmp\n");
-    }else if(pr >= 0){
-        return make_ast_operator(pr);            
+    Ast *a = malloc(sizeof(Ast));
+    a->type = AST_CHAR;
+    a->sval = &c; 
+    return a;
+}
+
+Ast *make_ast_string(char *str)
+{
+    Ast *a = malloc(sizeof(Ast));
+    a->type = AST_STR; 
+    a->sval = str;
+    return a; 
+}
+
+Ast *read_primitive(FILE *fp, Token *tok)
+{
+    switch(tok->type){
+        case TTYPE_INT:
+            return make_ast_int(tok->ival);
+        case TTYPE_PUNCT:
+            return make_ast_operator(tok->punct);
+        case TTYPE_STRING:
+            return make_ast_string(tok->sval);
+        case TTYPE_IDENT:
+            return func_or_ident(fp, tok);
+        case TTYPE_CHAR:
+            return make_ast_char(tok->c);
     }
-    return t;
+    return NULL;
 }
 
 Ast *make_fn(Ast *f, FILE *fp)
@@ -315,12 +296,25 @@ Ast *make_fn(Ast *f, FILE *fp)
     return f;
 }
 
+Token *make_char_tok(int ch)
+{
+    Token *tok = malloc(sizeof(Token));
+    tok->type = TTYPE_CHAR;
+    tok->c = ch;
+    return tok;
+}
+
+Token *read_char(FILE *fp, int ch)
+{
+    int c = fgetc(fp);
+    return make_char_tok(c);
+}
+
 Ast *rd_expr2(FILE *fp)
 {
     skip_space(fp);
-    int c = fgetc(fp);
-    Ast *ast = read_primitive(fp, c);
-
+    Token *tok = read_token(fp);
+    Ast *ast = read_primitive(fp, tok);
     if(ast->type == AST_FUNC){
         ast = make_fn(ast, fp);
         return ast;
@@ -334,6 +328,44 @@ Ast *rd_expr2(FILE *fp)
     Ast *right = rd_expr2(fp);
     Ast *ret = make_ast_node(ast, right, d);
     return ret;
+}
+
+Token *read_string(FILE *fp, char ch)
+{
+    Token *str_tok = read_ident(fp, ch);
+    return str_tok; 
+}
+
+Token *read_token(FILE *fp)
+{
+    skip_space(fp);
+    int c = fgetc(fp);
+    switch(c) {
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            return read_num(fp, c - '0');
+        case '"':
+            return read_string(fp, c);
+        case '\'':
+            return read_char(fp, c);
+        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+        case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
+        case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
+        case 'v': case 'w': case 'x': case 'y': case 'z': case 'A': case 'B':
+        case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I':
+        case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P':
+        case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W':
+        case 'X': case 'Y': case 'Z': case '_':
+            return read_ident(fp, c);
+        case '/': case '=': case '*': case '+': case '-': case '(': case ')':
+        case ',': case ';':
+            return make_punc_tok(c);
+        case EOF:
+            return NULL;
+        default:
+            printf("Unexpected Character %c", c);
+    }
+    return NULL;
 }
 
 void print_ast(Ast *ast)
@@ -371,14 +403,20 @@ void print_ast(Ast *ast)
     }
 }
 
-Ast *read_expr(FILE *p)
+void printf_func(Ast *a)
 {
-    Ast *a = malloc(sizeof(Ast));
-    a = rd_expr2(p);
     printf("AST-> %s\n", a->fname);
     printf("AST->BODY->TYPE-> %c\n", a->body->type);
     printf("AST->BODY->LEFT-> %d\n", a->body->left->ival);
     printf("AST->BODY->RIGHT-> %d\n", a->body->right->ival);
+}
+
+Ast *read_expr(FILE *fp)
+{
+    Ast *a = malloc(sizeof(Ast));
+    a = rd_expr2(fp);
+    fseek(fp, -3L, SEEK_CUR); 
+    int c = fgetc(fp);
     return a; 
 }
 

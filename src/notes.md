@@ -166,3 +166,23 @@ precisely what I need it to do.
 ------
 - Well after a fucking nightmare-and-a-half, I fixed the aforementioned issue with the ast. It came down to a simple matter of how the AST node was layed out... maddening, but I wouldn't have learned how structs work with such detail otherwise.
 - Now, it _actually_ builds recursive nodes, in no small part due to how closely I've examined the algorithm in my fucking combing through the code to fix this
+
+- Damn, it feels good to not have a major blocker anymore.
+
+- Moving forward, I have a few thoughts on what to implement next:
+    - Function parameters
+    - Braces and semicolons for functions (but at what point to extend lexer...)
+    - Strings
+    - Var structs
+- In fact, it's looking like I might actually have to implement a formal lexer soon
+
+- All in all, I feel really good about where I'm at, since I don't have any "theoretical" problems, right now, just language problems like from the last two days!
+
+6/5/18
+------
+- Yesterday leaves me immensely excited about moving forward on the compiler, I can't wait to make it more and more resemble a "real" compiler
+- I'm not sure what I'm going to implement today, but I'm leaning towards beefing up the lexer somehow, maybe with '{'
+- I feel like I want to make it more "real" and until I have braces I'll be faking it
+- Actually, the damn thing is getting so big I might need to break it up soon
+
+- *Note: the current handling of ; for function termination is crude, ultimately needs to be fixed
