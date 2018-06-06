@@ -144,14 +144,30 @@ Ast *make_ast_node(Ast *l, Ast *r, int op)
     return nd;
 }
 
+void unget_token(FILE *fp, Token *tok)
+{
+    ungetc(tok->punct, fp);    
+}
+
+void expect(FILE * fp, int c)
+{
+    Token *tok = read_token(fp);
+    if(tok->punct != c){
+        fprintf(stderr, "Error, did not get expected token '%c'.\n", c);
+        exit(0);
+    }
+}
+
 Ast *read_func_args(FILE *fp, char *buf)
 {
     Ast **args = malloc(sizeof(Ast));
     for(;;){
         skip_space(fp);
         Token *tok = read_token(fp);
-        if(tok->punct == ')')
+        if(tok->punct == ')'){
+            expect(fp, '{');
             break;
+        }
     }
     Ast *a = malloc(sizeof(Ast));
     return make_ast_func(buf, 0, args);
@@ -357,7 +373,7 @@ Token *read_token(FILE *fp)
         case 'X': case 'Y': case 'Z': case '_':
             return read_ident(fp, c);
         case '/': case '=': case '*': case '+': case '-': case '(': case ')':
-        case ',': case ';':
+        case ',': case ';': case '{': case '}':
             return make_punc_tok(c);
         case EOF:
             return NULL;
