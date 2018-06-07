@@ -380,8 +380,6 @@ Ast *read_expr(FILE *fp)
     Ast *a = malloc(sizeof(Ast));
     a = rd_expr2(fp);
     fseek(fp, -3L, SEEK_CUR); 
-    Token *t = read_token(fp);
-    unget_token(fp, t);
     expect(fp, ';');
     return a; 
 }
