@@ -100,6 +100,7 @@ void expect(FILE * fp, int c)
         fprintf(stderr, "Error, did not get expected token '%c'.\n", c);
         exit(0);
     }
+    //unget_token(fp, tok);
 }
 
 Ast *read_func_args(FILE *fp, char *buf)
@@ -194,6 +195,11 @@ Token *read_num(FILE *fp, int n)
     for(;;){
         int c = getc(fp);    
         if(!isdigit(c) || c == ';'){
+            if(c == ';'){
+                ungetc(c, fp);
+                Token *tok = make_int_tok(n);
+                return tok;
+            }
             Token *tok = make_int_tok(n);
             return tok;
         } // else if c == something else, untermed? 
@@ -286,6 +292,10 @@ Ast *rd_expr2(FILE *fp)
     }
     skip_space(fp);
     int d = fgetc(fp);
+    if(d == ';'){
+        ungetc(d, fp);
+        return ast;
+    }
     if(d == EOF){
         return ast;
     }
@@ -304,6 +314,7 @@ Token *read_token(FILE *fp)
 {
     skip_space(fp);
     int c = fgetc(fp);
+    if(c == EOF) error("Unexpected EOF\n");
     switch(c) {
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
@@ -378,9 +389,10 @@ void printf_func(Ast *a)
 Ast *read_expr(FILE *fp)
 {
     Ast *a = malloc(sizeof(Ast));
+    int c = 0;
     a = rd_expr2(fp);
-    fseek(fp, -3L, SEEK_CUR); 
     expect(fp, ';');
+    expect(fp, '}');
     return a; 
 }
 
