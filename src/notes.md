@@ -195,3 +195,13 @@ do it because if I went too much further without doing so things just would have
 ------
 - I think I'm going to start working to complete the compiler's handling of functions with both Ast's for parameters as well as semicolons for statements, then variables, and lastly returning.
 - I plan on using to next 4 days to go on a marathon and pump out as much code as I possibly can, to start getting it to something more recognizably functional.
+
+6/7/18
+------
+- I implemented ';' and '{' checks yesterday, which feels awesome because that means I'm really coming up on being able to read full functions, and thus entire programs. It's dope. I'm going to:
+    * complete the function parsing
+    * implements variables
+
+today, but necessarily in any particular order. That will hopefully take me to the point of being able to run simple programs (e.g. arithemetic, etc.), after I do the code generation for them of course. I'm going to be beyond excited at that point, because honestly I didn't really think this was even possible at first. It's one of those things that completely re-writes where you think your limits are.
+- Also, I might need to finally organize this thing into multiple files, because it's 500+ lines and a lot of the functions have significantly different application.
+
