@@ -4,15 +4,7 @@
 #include <ctype.h>
 #include "cjcc.h"
 
-#define RETURN "return"
-#define INT "int"
-#define MAIN "main"
-#define ARGV "argv"
-#define ARGC "argc"
-#define CHAR "char"
-
 #define BUFLEN 256
-#define SYM 14
 #define MAX_ARGS 6
 
 void check_file(FILE *p)
@@ -95,6 +87,12 @@ void unget_token(FILE *fp, Token *tok)
     ungetc(tok->punct, fp);    
 }
 
+void error(char *input)
+{
+    fprintf(stderr, "%s", input);
+    exit(0);
+}
+
 void expect(FILE * fp, int c)
 {
     Token *tok = read_token(fp);
@@ -106,8 +104,13 @@ void expect(FILE * fp, int c)
 
 Ast *read_func_args(FILE *fp, char *buf)
 {
+    int i = 0;
     Ast **args = malloc(sizeof(Ast));
     for(;;){
+        i++;
+        if(i > 6){
+            error("Function exceeds max args\n"); 
+        }
         skip_space(fp);
         Token *tok = read_token(fp);
         if(tok->punct == ')'){
