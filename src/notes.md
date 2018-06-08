@@ -223,3 +223,6 @@ today, but necessarily in any particular order. That will hopefully take me to t
 * I'm halfway through the "40 Days" goal today, and I have to say, it seemed insane and impossible, but I think I could actually make this happen. It obviously won't exactly be on feature parity with GCC, but goddamn -- it could be pretty passable.
 
 - Update before haircut: I just need to fix the **args struct** because after the second arg the arg[0] is coming back null. Just a simple memory allocation change.
+- Update: I actually fixed it before the hair cut
+- I'm about to finish vars by implemented parsing for '=' assignments
+- Then I may as well do the return value and work on some code generation

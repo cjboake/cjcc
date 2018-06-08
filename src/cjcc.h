@@ -37,7 +37,7 @@ typedef struct Var {
     char *name;
 } Var;
 
-typedef struct Ast {
+typedef struct Astt {
   int type;
   struct Ast *left;
   struct Ast *right;
@@ -55,6 +55,37 @@ typedef struct Ast {
         char *artype;
         //struct Ast **args;
         struct Ast *body;
+    };
+  };
+} Astt;
+
+typedef struct Ast {
+  char type;
+  union {
+    // Integer
+    int ival;
+    // String
+    struct {
+      char *sval;
+      int sid;
+      struct Ast *snext;
+    };
+    // Variable
+    struct {
+      char *vname;
+      int vpos;
+      struct Ast *vnext;
+    };
+    // Binary operator
+    struct {
+      struct Ast *left;
+      struct Ast *right;
+    };
+    // Function call
+    struct {
+      char *fname;
+      int nargs;
+      struct Ast **args;
     };
   };
 } Ast;

@@ -44,6 +44,7 @@ Ast *ast_string(char buffer[])
 Ast *make_var(char *n)
 {
     Ast *v = malloc(sizeof(Var));
+    v->type = AST_VAR;
     v->name = n;
     return v;
 }
@@ -51,9 +52,8 @@ Ast *make_var(char *n)
 Ast *make_ast_var(Ast *v)
 {
     Ast *ast = malloc(sizeof(Ast));
-    //printf("v->name %s\n", v->name);
+    ast->type = AST_VAR;
     ast->var = v;
-    //printf("ast->var->name %s\n", ast->var->name);
     return ast;
 }
 
@@ -103,14 +103,12 @@ void expect(FILE * fp, int c)
         fprintf(stderr, "Error, did not get expected token '%c'.\n", c);
         exit(0);
     }
-    //unget_token(fp, tok);
 }
 
 int check_for(char c, FILE *fp)
 {
     Token *tok = read_token(fp);
     if(tok->punct == c){
-        //unget_token(fp, tok);
         return 1; 
     } else {
         unget_token(fp, tok);
@@ -131,9 +129,7 @@ Ast *read_func_args(FILE *fp, char *buf)
             break;
         } else {
             Ast *a = read_primitive(fp, tok);
-            printf("I: %d\n", i);
             args[i] = a;
-            printf("args[%d]: %s\n", i,  args[i]->name);
             if(check_for(',', fp)) continue;
             if(check_for(')', fp)){
                 expect(fp, '{');
@@ -143,10 +139,6 @@ Ast *read_func_args(FILE *fp, char *buf)
         nargs++;
     }
     Ast *a = malloc(sizeof(Ast));
-    
-    printf("RIGHT BEFORE **args\n");
-    printf("**args[0]: %s\n", args[0]->name);
-    printf("**args[1]: %s\n", args[1]->name);
     return make_ast_func(buf, nargs, args);
 }
 
@@ -161,7 +153,6 @@ Token *make_string_tok(char *string)
 Token *read_ident(FILE *fp, char d)
 {
     char *buf = malloc(BUFLEN);
-    //fseek(fp, -1L, SEEK_CUR); 
     buf[0] = d;
     int i = 1;
     for(;;) {
@@ -198,10 +189,7 @@ Ast *func_or_ident(FILE *fp, Token *tok)
         return read_func_args(fp, name); 
     } else {
         unget_token(fp, t);
-        //Ast *a = make_ast_var(make_var(name));
-        Ast *b = make_var(name); 
-        Ast *c = make_ast_var(b);
-        return b;
+        return make_ast_var(make_var(name)); 
     }
 }
 
@@ -314,18 +302,21 @@ Token *read_char(FILE *fp, int ch)
 
 Ast *rd_expr2(FILE *fp)
 {
-    //printf("Made it into rd_expr2 after the ?\n");
     skip_space(fp);
     Token *tok = read_token(fp);
     Ast *ast = read_primitive(fp, tok);
     if(ast->type == AST_FUNC){
+        printf("In the AST_FUNC block.\n");
         ast = make_fn(ast, fp);
         return ast;
     }
-    //if(ast->type == AST_VAR){
-    //    expect(fp, '=');
-     //   ast->var = rd_expr2(fp);
-    //}
+    if(ast->type == AST_VAR){
+        printf("In the AST_VAR block. AST->name: %s \n", ast->var->name);
+        skip_space(fp);
+        expect(fp, '=');
+        ast->var->var = rd_expr2(fp);
+        printf("Should be the var type: %s\n", ast->var->name);
+    }
     skip_space(fp);
     int d = fgetc(fp);
     if(d == ';'){
