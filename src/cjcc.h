@@ -11,7 +11,8 @@ enum {
     AST_INT,
     AST_STR, 
     AST_CHAR,
-    AST_FUNC
+    AST_FUNC,
+    AST_VAR
 };
 
 enum {
@@ -41,12 +42,14 @@ typedef struct Ast {
   struct Ast *left;
   struct Ast *right;
   union {
-    Var *var;
+    struct Ast *var;
+    char *name;
     int ival;
     char *sval;
     struct {
         char *fname;
         int nargs;
+        char *artype;
         struct Ast **args;
         struct Ast *body;
     };

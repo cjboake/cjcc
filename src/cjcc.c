@@ -40,14 +40,14 @@ Ast *ast_string(char buffer[])
     r->sval = buffer; return r;
 }
 
-Var *make_var(char *n)
+Ast *make_var(char *n)
 {
-    Var *v = malloc(sizeof(Var));
+    Ast *v = malloc(sizeof(Var));
     v->name = n;
     return v;
 }
 
-Ast *make_ast_var(Var *v)
+Ast *make_ast_var(Ast *v)
 {
     Ast *ast = malloc(sizeof(Ast));
     ast->var = v;
@@ -103,24 +103,41 @@ void expect(FILE * fp, int c)
     //unget_token(fp, tok);
 }
 
+int check_for(char c, FILE *fp)
+{
+    Token *tok = read_token(fp);
+    if(tok->punct == c){
+        unget_token(fp, tok);
+        return 1; }
+    else
+        return 0;
+}
+
 Ast *read_func_args(FILE *fp, char *buf)
 {
-    int i = 0;
-    Ast **args = malloc(sizeof(Ast));
-    for(;;){
-        i++;
-        if(i > 6){
-            error("Function exceeds max args\n"); 
-        }
-        skip_space(fp);
+    int i = 0, nargs = 0;
+    Ast **args = malloc(sizeof(Ast) * MAX_ARGS + 1);
+    for(;i < MAX_ARGS; i++){
+        if(i > 6) error("Function exceeds max args\n"); 
+        skip_space(fp); 
         Token *tok = read_token(fp);
         if(tok->punct == ')'){
             expect(fp, '{');
             break;
+        } else {
+            Ast *a = read_primitive(fp, tok);
+            args[i] = a;
+            if(check_for(',', fp)) 
+                continue;
+            if(check_for(')', fp)){
+                expect(fp, '{');
+                break;
+            }
         }
+        nargs++;
     }
     Ast *a = malloc(sizeof(Ast));
-    return make_ast_func(buf, 0, args);
+    return make_ast_func(buf, nargs, args);
 }
 
 Token *make_string_tok(char *string)
@@ -283,6 +300,7 @@ Token *read_char(FILE *fp, int ch)
 
 Ast *rd_expr2(FILE *fp)
 {
+    //printf("Made it into rd_expr2 after the ?\n");
     skip_space(fp);
     Token *tok = read_token(fp);
     Ast *ast = read_primitive(fp, tok);
@@ -290,6 +308,10 @@ Ast *rd_expr2(FILE *fp)
         ast = make_fn(ast, fp);
         return ast;
     }
+    //if(ast->type == AST_VAR){
+    //    expect(fp, '=');
+     //   ast->var = rd_expr2(fp);
+    //}
     skip_space(fp);
     int d = fgetc(fp);
     if(d == ';'){

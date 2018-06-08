@@ -204,4 +204,4 @@ do it because if I went too much further without doing so things just would have
 
 today, but necessarily in any particular order. That will hopefully take me to the point of being able to run simple programs (e.g. arithemetic, etc.), after I do the code generation for them of course. I'm going to be beyond excited at that point, because honestly I didn't really think this was even possible at first. It's one of those things that completely re-writes where you think your limits are.
 - Also, I might need to finally organize this thing into multiple files, because it's 500+ lines and a lot of the functions have significantly different application.
-
+- TODO: refactor the _read_func_args_ method... currently doesn't work...
