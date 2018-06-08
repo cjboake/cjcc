@@ -39,7 +39,7 @@ Parsing
     2. Continue in the style of 8cc, immediately introduce AST+Gen, and render statements
     without function bodies.
 
-- The first approac is a delayed result, where as the latter is a more immediate result, 
+- The first approach is a delayed result, where as the latter is a more immediate result, 
 but without being what you might call a "real" compiler (i.e. not having Lexing/Parsing/Gen phases). 
 Obviously, it will get there, but is at first more elementary.
 
@@ -205,3 +205,19 @@ do it because if I went too much further without doing so things just would have
 today, but necessarily in any particular order. That will hopefully take me to the point of being able to run simple programs (e.g. arithemetic, etc.), after I do the code generation for them of course. I'm going to be beyond excited at that point, because honestly I didn't really think this was even possible at first. It's one of those things that completely re-writes where you think your limits are.
 - Also, I might need to finally organize this thing into multiple files, because it's 500+ lines and a lot of the functions have significantly different application.
 - TODO: refactor the _read_func_args_ method... currently doesn't work...
+
+- It's 1am but we're doing good. I've got the parsing of the function args ~halfway done. Turns out, my instinct for doing the vars first was a good one-- args are saved as vars, so you need vars first. Somehow, I ended up on the function thing though, so this is where I'm at. Finish the args, and the function work for the day will be done.
+
+- A note so I don't forget:
+    * Making the var is failing because it's not reading the name once passed into the second method. I think this is simply due to the memory layout of the Ast node itself. So, simple fix.
+
+
+6/8/18 - Day 20
+---------------
+- Yesterday went well, I almost finished the function args/var implementation. All I have to do is polish the Ast structure for the Var and it should be good to go. 
+- After that, I think it might make sense to add basic type checking on the vars/function args. I'll just make them all ints for now, but at least the decision-making process will be there so I can expand to other types more easily.
+- While I'm at that, return types for the functions would probably make sense as well.
+- Once all of that is in, it would be logical to recognize the return statement of the function. At that point, it would be actually be parsing real functions!
+- Then I'll update code gen to actually handle these things. This is getting to be very exciting, and look like a real compiler! 
+
+* I'm halfway through the "40 Days" goal today, and I have to say, it seemed insane and impossible, but I think I could actually make this happen. It obviously won't exactly be on feature parity with GCC, but goddamn -- it could be pretty passable.

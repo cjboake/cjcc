@@ -42,8 +42,10 @@ typedef struct Ast {
   struct Ast *left;
   struct Ast *right;
   union {
-    struct Ast *var;
-    char *name;
+    struct{ 
+        struct Ast *var;
+        char *name;
+    };
     int ival;
     char *sval;
     struct {

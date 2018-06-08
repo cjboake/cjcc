@@ -1,3 +1,4 @@
+//printf("\n");
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +51,9 @@ Ast *make_var(char *n)
 Ast *make_ast_var(Ast *v)
 {
     Ast *ast = malloc(sizeof(Ast));
+    //printf("v->name %s\n", v->name);
     ast->var = v;
+    //printf("ast->var->name %s\n", ast->var->name);
     return ast;
 }
 
@@ -107,10 +110,12 @@ int check_for(char c, FILE *fp)
 {
     Token *tok = read_token(fp);
     if(tok->punct == c){
+        //unget_token(fp, tok);
+        return 1; 
+    } else {
         unget_token(fp, tok);
-        return 1; }
-    else
         return 0;
+    }
 }
 
 Ast *read_func_args(FILE *fp, char *buf)
@@ -126,9 +131,10 @@ Ast *read_func_args(FILE *fp, char *buf)
             break;
         } else {
             Ast *a = read_primitive(fp, tok);
+            printf("I: %d\n", i);
             args[i] = a;
-            if(check_for(',', fp)) 
-                continue;
+            printf("args[%d]: %s\n", i,  args[i]->name);
+            if(check_for(',', fp)) continue;
             if(check_for(')', fp)){
                 expect(fp, '{');
                 break;
@@ -137,6 +143,10 @@ Ast *read_func_args(FILE *fp, char *buf)
         nargs++;
     }
     Ast *a = malloc(sizeof(Ast));
+    
+    printf("RIGHT BEFORE **args\n");
+    printf("**args[0]: %s\n", args[0]->name);
+    printf("**args[1]: %s\n", args[1]->name);
     return make_ast_func(buf, nargs, args);
 }
 
@@ -156,7 +166,7 @@ Token *read_ident(FILE *fp, char d)
     int i = 1;
     for(;;) {
         char c = getc(fp); 
-        if(!isalnum(c) || c == '"'){
+        if(!isalnum(c) || c == '"' || c == ')'){
             ungetc(c, fp);
             break;
         }
@@ -187,7 +197,11 @@ Ast *func_or_ident(FILE *fp, Token *tok)
     if(t->punct == '('){
         return read_func_args(fp, name); 
     } else {
-        return make_ast_var(make_var(name));
+        unget_token(fp, t);
+        //Ast *a = make_ast_var(make_var(name));
+        Ast *b = make_var(name); 
+        Ast *c = make_ast_var(b);
+        return b;
     }
 }
 
