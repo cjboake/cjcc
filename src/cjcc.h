@@ -41,6 +41,7 @@ typedef struct Ast {
   int type;
   struct Ast *left;
   struct Ast *right;
+  struct Ast **args;
   union {
     struct{ 
         struct Ast *var;
@@ -52,7 +53,7 @@ typedef struct Ast {
         char *fname;
         int nargs;
         char *artype;
-        struct Ast **args;
+        //struct Ast **args;
         struct Ast *body;
     };
   };

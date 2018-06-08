@@ -221,3 +221,5 @@ today, but necessarily in any particular order. That will hopefully take me to t
 - Then I'll update code gen to actually handle these things. This is getting to be very exciting, and look like a real compiler! 
 
 * I'm halfway through the "40 Days" goal today, and I have to say, it seemed insane and impossible, but I think I could actually make this happen. It obviously won't exactly be on feature parity with GCC, but goddamn -- it could be pretty passable.
+
+- Update before haircut: I just need to fix the **args struct** because after the second arg the arg[0] is coming back null. Just a simple memory allocation change.
