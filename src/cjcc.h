@@ -33,48 +33,20 @@ typedef struct {
     };
 } Token;
 
-typedef struct Var {
-    char *name;
-} Var;
-
-typedef struct Astt {
-  int type;
-  struct Ast *left;
-  struct Ast *right;
-  struct Ast **args;
-  union {
-    struct{ 
-        struct Ast *var;
-        char *name;
-    };
-    int ival;
-    char *sval;
-    struct {
-        char *fname;
-        int nargs;
-        char *artype;
-        //struct Ast **args;
-        struct Ast *body;
-    };
-  };
-} Astt;
-
 typedef struct Ast {
-  char type;
+  int type;
   union {
     // Integer
     int ival;
     // String
     struct {
       char *sval;
-      int sid;
-      struct Ast *snext;
     };
     // Variable
     struct {
-      char *vname;
+      char *name;
       int vpos;
-      struct Ast *vnext;
+      struct Ast *var;
     };
     // Binary operator
     struct {
@@ -86,6 +58,7 @@ typedef struct Ast {
       char *fname;
       int nargs;
       struct Ast **args;
+      struct Ast *body;
     };
   };
 } Ast;

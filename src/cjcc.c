@@ -43,7 +43,7 @@ Ast *ast_string(char buffer[])
 
 Ast *make_var(char *n)
 {
-    Ast *v = malloc(sizeof(Var));
+    Ast *v = malloc(sizeof(Ast));
     v->type = AST_VAR;
     v->name = n;
     return v;
@@ -315,7 +315,7 @@ Ast *rd_expr2(FILE *fp)
         skip_space(fp);
         expect(fp, '=');
         ast->var->var = rd_expr2(fp);
-        printf("Should be the var type: %s\n", ast->var->name);
+        printf("Should be the var type: %d\n", ast->var->var->right->ival);
     }
     skip_space(fp);
     int d = fgetc(fp);
@@ -478,6 +478,10 @@ void compile(Ast *ast)
     assembly_header();
     if(ast->type == AST_FUNC) {     
         emit_func(ast); 
+    }
+    if(ast->type == AST_VAR) {     
+        printf("In the new AST_VAR block\n"); 
+        emit_intexpr(ast); 
     }
     if(ast->type == AST_INT) {     
         emit_intexpr(ast); 
