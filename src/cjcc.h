@@ -58,7 +58,12 @@ typedef struct Ast {
       char *fname;
       int nargs;
       struct Ast **args;
-      struct Ast *body;
+      struct Ast **body;
+    };
+    // Declaration
+    struct {
+      struct Ast *decl_var;
+      struct Ast *decl_init;
     };
   };
 } Ast;

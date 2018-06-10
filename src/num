@@ -1,3 +1,5 @@
-main( argc, argv){
-   cat = 4 - 2;
+main(){
+    x = 4;
+    y = 2;
+    a = 1 + 3;
 }

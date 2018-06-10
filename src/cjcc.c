@@ -1,4 +1,3 @@
-//printf("\n");
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +6,7 @@
 
 #define BUFLEN 256
 #define MAX_ARGS 6
+#define EXPR_LEN 100
 
 void check_file(FILE *p)
 {
@@ -41,20 +41,18 @@ Ast *ast_string(char buffer[])
     r->sval = buffer; return r;
 }
 
-Ast *make_var(char *n)
+Ast *make_var(char *name)
 {
-    Ast *v = malloc(sizeof(Ast));
-    v->type = AST_VAR;
-    v->name = n;
-    return v;
+    Ast *varr = malloc(sizeof(Ast));
+    varr->type = AST_VAR;
+    varr->name = name;
+    return varr;
 }
 
-Ast *make_ast_var(Ast *v)
+Ast *make_ast_var(Ast *varr, Ast *val)
 {
-    Ast *ast = malloc(sizeof(Ast));
-    ast->type = AST_VAR;
-    ast->var = v;
-    return ast;
+    varr->var = val;
+    return varr;
 }
 
 Ast *make_ast_func(char *name, int n, Ast **a)
@@ -189,7 +187,9 @@ Ast *func_or_ident(FILE *fp, Token *tok)
         return read_func_args(fp, name); 
     } else {
         unget_token(fp, t);
-        return make_ast_var(make_var(name)); 
+        // produce ast->name & ast->var->holds whatver val
+        // ex: ast->var->ival || ast->var-type (+)
+        return make_ast_var(make_var(name), rd_expr2(fp)); 
     }
 }
 
@@ -238,15 +238,6 @@ int priority(char op)
     }
 }
 
-void print_nd(Ast *ast)
-{
-    printf("In print_nd ->> ");
-    if(ast->type == AST_FUNC) printf("ast func: %s\n", ast->fname);
-    if(ast->type == AST_INT) printf("ast int: %d\n", ast->ival);
-    if(ast->type == AST_PLUS) printf("ast +: %d\n", ast->type);
-    if(ast->type == AST_MINUS) printf("ast -: %d\n", ast->type);
-}   
-
 Ast *make_ast_char(char c)
 {
     Ast *a = malloc(sizeof(Ast));
@@ -282,7 +273,27 @@ Ast *read_primitive(FILE *fp, Token *tok)
 
 Ast *make_fn(Ast *f, FILE *fp)
 {
-    f->body = rd_expr2(fp); 
+    Ast **fbod = malloc(sizeof(Ast) * MAX_ARGS + 1);
+    for(int i = 0; i < EXPR_LEN; i++){
+        Ast *a = rd_expr2(fp);       
+        if(!a){
+            f->body = fbod; 
+            break; 
+        }        
+        fbod[i] = a;
+        if( 0 ){  //check_for('}', fp)){
+            f->body = fbod; 
+            break;
+        }
+    } 
+    if(f->body[0] != NULL)
+        printf("f->body[0]->name: %s, f->body[0]->val: %d\n", f->body[0]->name, f->body[0]->var->ival);
+    if(f->body[1] != NULL)
+        printf("f->body[1]->name: %s, f->body[1]->val: %d\n", f->body[1]->name, f->body[1]->var->ival);
+    if(f->body[2] != NULL)
+        printf("f->body[2]->name: %s, f->body[2]->type: %c, f->body[2]->var->left->ival: %d ", f->body[2]->name, f->body[2]->var->type, f->body[2]->var->left->ival);
+    printf("f->body[2]->var-right->ival: %d\n", f->body[2]->var->right->ival);
+    
     return f;
 }
 
@@ -304,28 +315,31 @@ Ast *rd_expr2(FILE *fp)
 {
     skip_space(fp);
     Token *tok = read_token(fp);
+    if(tok->type == TTYPE_PUNCT || tok == NULL){ 
+        unget_token(fp, tok);
+        return NULL;
+    }
     Ast *ast = read_primitive(fp, tok);
+    if(!ast) return NULL;
     if(ast->type == AST_FUNC){
-        printf("In the AST_FUNC block.\n");
         ast = make_fn(ast, fp);
         return ast;
     }
+    if(ast->type == AST_INT){
+        if(check_for(';', fp)) return ast;
+    } 
     if(ast->type == AST_VAR){
-        printf("In the AST_VAR block. AST->name: %s \n", ast->var->name);
         skip_space(fp);
         expect(fp, '=');
-        ast->var->var = rd_expr2(fp);
-        printf("Should be the var type: %d\n", ast->var->var->right->ival);
+        ast->var = rd_expr2(fp);
+        return ast;
     }
     skip_space(fp);
     int d = fgetc(fp);
     if(d == ';'){
-        ungetc(d, fp);
         return ast;
     }
-    if(d == EOF){
-        return ast;
-    }
+    if(d == EOF) return NULL;
     Ast *right = rd_expr2(fp);
     Ast *ret = make_ast_node(ast, right, d);
     return ret;
@@ -388,7 +402,7 @@ void print_ast(Ast *ast)
         case AST_FUNC:
             printf("%s(", ast->fname);
             printf(")");
-            print_ast(ast->body);
+            //print_ast(ast->body);
             break;
         case AST_INT:
             printf("%d", ast->ival);
@@ -396,6 +410,9 @@ void print_ast(Ast *ast)
         case AST_STR:
             printf("%s", ast->sval);
             break;
+        case AST_VAR:
+            printf("%s", ast->name);
+            print_ast(ast->var);
         default:
             printf("( %c", ast->type);
             print_ast(ast->left);
@@ -405,42 +422,19 @@ void print_ast(Ast *ast)
     }
 }
 
-void printf_func(Ast *a)
-{
-    printf("AST-> %s\n", a->fname);
-    printf("AST->BODY->TYPE-> %c\n", a->body->type);
-    printf("AST->BODY->LEFT-> %d\n", a->body->left->ival);
-    printf("AST->BODY->RIGHT-> %d\n", a->body->right->ival);
-}
-
 Ast *read_expr(FILE *fp)
 {
     Ast *a = malloc(sizeof(Ast));
-    int c = 0;
     a = rd_expr2(fp);
-    expect(fp, ';');
-    expect(fp, '}');
     return a; 
-}
-
-Ast *scan(char *input)
-{
-    char buffer[BUFLEN];
-    FILE *fp;
-    fp = fopen(input, "r");
-    check_file(fp);
-    Ast *ast = read_expr(fp);
-    return ast;
 }
 
 void assembly_header()
 {
-    printf("ASSEMBLY CODE\n\n");
+    printf("\nASSEMBLY CODE\n\n");
     printf(".section    __TEXT,__text,regular,pure_instructions\n");
     printf(".macosx_version_min 10, 13\n");
     printf(".intel_syntax noprefix\n");
-    printf(".globl  _main\n");
-    printf(".p2align    4, 0x90\n\n");
 }
 
 void emit_intexpr(Ast *ast)
@@ -465,20 +459,50 @@ void emit_op(Ast *ast)
     printf("ret\n");
 }
 
+void alloc_funct_args(Ast **a)
+{
+    printf("alloc_funct_args\n");
+     
+
+
+}
+
+void alloc_var(Ast *var)
+{
+    printf("alloc_var\n");
+    if(var->type == AST_INT)
+        printf("mov     dword ptr [rbp - 4], %d \n", var->ival);
+
+    if(var->type == '+' || var->type == '-') 
+        emit_op(var);
+
+}
+
 void emit_func(Ast *ast)
 {
+    printf(".globl  _%s\n", ast->fname);
+    printf(".p2align    4, 0x90\n\n");
     printf("_%s:\n", ast->fname);
-    printf("\tpush rbp\n");
-    if(ast->body->type == '+' || ast->body->type == '-') 
-        emit_op(ast->body);
+    printf("\tpush  rbp\n\t");
+    printf("mov   rbp, rsp\n\t");
+    
+    // handle function arguments
+    if(ast->nargs > 0)
+        alloc_funct_args(ast->args);
+    
+    // read function contents, var or declaration
+    // will need to implement a loop over the body Ast**
+    //if(ast->body->type == AST_VAR)
+      //  alloc_var(ast->var); 
+   
 }
 
 void compile(Ast *ast)
 {
     assembly_header();
-    if(ast->type == AST_FUNC) {     
-        emit_func(ast); 
-    }
+    //if(ast->type == AST_FUNC) {     
+    //    emit_func(ast->body); 
+    //}
     if(ast->type == AST_VAR) {     
         printf("In the new AST_VAR block\n"); 
         emit_intexpr(ast); 
@@ -491,22 +515,26 @@ void compile(Ast *ast)
     }
 }
 
+Ast *scan(char *input)
+{
+    FILE *fp;
+    fp = fopen(input, "r");
+    check_file(fp);
+    Ast *ast = read_expr(fp);
+    return ast;
+}
+
 void run(char *argv[])
 {
-    int r = 0;
-    int p = 0;
+    FILE *fp;
+    int r = 0, i = 0, p = 0;
     char *input;
-    if(argv[2] != NULL && !strcmp(argv[2], "-a"))
-        p = 1;
+    Ast *exprs[EXPR_LEN];
+    if(argv[2] != NULL && !strcmp(argv[2], "-a")) p = 1;
     if(argv[1] != NULL) {
         input = argv[1];
         Ast *ast = scan(input);
-        if(p == 1) {
-            printf("-> Print AST <-\n");
-            print_ast(ast);
-            printf("\n\n");
-        }
-        compile(ast);
+        //compile(ast);
     } else {
         input = "Please give an input\n";
         printf("%s", input);

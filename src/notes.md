@@ -226,3 +226,65 @@ today, but necessarily in any particular order. That will hopefully take me to t
 - Update: I actually fixed it before the hair cut
 - I'm about to finish vars by implemented parsing for '=' assignments
 - Then I may as well do the return value and work on some code generation
+
+- It is now time to handle code generation for the variables, which will be challenging, since I have no idea how to use variables in assembly.
+
+Rough Idea:
+===========
+    * Allocate each var into registers
+    * Allocate enough registers (bytes) for any var declarations
+    * Save callee registers? (not sure about this one)
+    * Loads args into a scratch register?
+    * Perform whatever operations on the args
+    * Move that into the result register
+    * Restore everything and return 
+
+
+- Okay that was before I really understood what the assembyl was doing. Here is more accureate, albeit abstract, view on the function assembly generation:
+ 
+    * Do the standard base pointer/frame point load
+    * Allocate any parameters in variables as necessary
+    * If it is a function call, move the value into a register to be used, such as edi
+    * Perform any operations on them
+    * create a new var/move values onto a return register
+
+* End of day note: I'm feeling like I finally understand local variables in assembly. I'm definitely going to be able to implement them, and function arguments, tomorrow.
+
+=============================================================================================================
+=============================================================================================================
+
+6/9/18 - Day 21
+---------------
+
+- Wow, the old Vimrc really just put me through the ringer there...
+- Went down the rabbit hole and added a bunch of sweet custom commands:
+ 
+    * For example '@q' now automatically inserts a 'printf("\n");' for debugging purposes, since it is so commonly used.
+    * Another good one is that '<Space><Return>' opens Goyo, and ':Qq' closes and saves Goyo/Vim together
+
+* But for real ->
+- I made some really good progress yesterday, I finished the function parsing (save for type checking and return values), and the spent the rest of the day studying variables in x86_64 assembly. I now feel confident enough to implement the code generation for functions, function declarations, calls, return vals, etc.
+- After doing that, I'll go ahead and add some basic type checking (ints), which will actually be very interesting, and serve as the basis for more complex types. It's exciting!
+
+- I just spend the last 1.5hrs learning about Vim and changing vim/bash settings and I've gotta say that was a hell of a 90-minutes-well-spent.
+- Okay, time for some work.
+
+- Ugh, made a very obvious mistake in parsing and didn't set it up to parse multiple vars...
+- Yeah, turns out that this was a huge oversight, since having multiple expressions is a reasonably significant change to the overall shape of the data structures in use
+
+* Ideas on the issue:
+    - A program is simply a list of Ast nodes
+    - Each node may/may not have children
+    - But this means a *Ast could have many Ast's that exist in parallel, not necessarily being children
+    - This is the same way a char* is multiple chars that are not connected
+    - So, perhaps one can iterate over an Ast*, recursing on the children, and covering the whole program
+
+- This in mind, I might have to bite the bullet on declarations, because this becomes important once you move on to code generation.
+
+- Well, I must admit that today was not terribly productive. I was not feeling well and I became bummed out when I realized that I had misjudged in my handling of the expressions. I think I can handle it by simply treaing the *Ast as an array, but I didn't have the mental energy to finish the implementation today. Tomorrow.
+
+6/10/18
+-------
+- Yesterday was not super successful, but at least I realized what an important next step is.
+- To implement the ideas that I describe above, I am instead going to utilize the function->body as a body[],
+so that it can hold many expressions. As such, all of the functions will still be able to connect via Ast nodes, and any looping will be much more contained.

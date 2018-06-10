@@ -7,6 +7,6 @@
 #include <ctype.h>
 #include "cjcc.h"
 
-
+/* These buffers might not be so bad */
 
 #endif /* LEX.H */
