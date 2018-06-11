@@ -68,13 +68,13 @@ typedef struct Ast {
   };
 } Ast;
 
+void run(char *argv[]);
 Ast *read_expr(FILE *p);
 Ast *read_primitive(FILE *fp, Token *tok);
 void print_ast(Ast *ast);
 Ast *rd_expr2(FILE *fp);
 void skip_space(FILE *fp); 
 Token *read_token(FILE *fp);
-
 
 /* DEBUG macros*/
 #ifndef NDEBUG

@@ -29,7 +29,7 @@ void run(char *argv[])
     if(argv[1] != NULL) {
         input = argv[1];
         Ast *ast = scan(input);
-//        compile(ast);
+        compile(ast);
     } else {
         input = "Please give an input\n";
         printf("%s", input);
