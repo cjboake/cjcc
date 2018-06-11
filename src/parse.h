@@ -7,6 +7,12 @@
 #include <ctype.h>
 #include "cjcc.h"
 
-/* This change is a test use of buffers */
-
+Ast *make_ast_operator(int type);
+Ast *ast_string(char buffer[]);
+Ast *make_var(char *name);
+Ast *make_ast_var(Ast *varr, Ast *val);
+Ast *make_ast_func(char *name, int n, Ast **a);
+Ast *make_ast_int(int val);
+Ast *make_ast_node(Ast *l, Ast *r, int op);
+Ast *read_func_args(FILE *fp, char *buf);
 #endif /* PARSE_H */

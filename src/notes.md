@@ -288,3 +288,9 @@ Rough Idea:
 - Yesterday was not super successful, but at least I realized what an important next step is.
 - To implement the ideas that I describe above, I am instead going to utilize the function->body as a body[],
 so that it can hold many expressions. As such, all of the functions will still be able to connect via Ast nodes, and any looping will be much more contained.
+
+- Well, my sanity was in question the whole time, but we can now successfully parse functions with multiples expressions. That was one of the more "magical" problems. For whatever reason, since my parsing wasn't getting characters in the proper order, I was getting random ascii values and it was really making me question... all of my life choices up until this point.
+
+- I really made more progress than I realized today, but because I thought that this was already done, it's annoying to have to actually do it. But that's life sometimes... Now it actually works with multiple expressions though, and should hook up multiple functions too, so at least I shouldn't have to revisit this in a major way.
+- So tomorrow, I'll actually move on to the code gen for the vars.
+- Also, I finally properly separated everything into files, which it was very much time to do. 
