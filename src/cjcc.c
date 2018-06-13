@@ -19,26 +19,12 @@ Ast *scan(char *input)
     return ast;
 }
 
-void run(char *argv[])
-{
-    FILE *fp;
-    int r = 0, i = 0, p = 0;
-    char *input;
-    Ast *exprs[EXPR_LEN];
-    if(argv[2] != NULL && !strcmp(argv[2], "-a")) p = 1;
-    if(argv[1] != NULL) {
-        input = argv[1];
-        Ast *ast = scan(input);
-        compile(ast);
-    } else {
-        input = "Please give an input\n";
-        printf("%s", input);
-        exit(0);
-    }
-}
-
 int main(int argc, char *argv[])
 {
-    run(argv);
+    if(argc > 0){
+        Ast *ast = scan(argv[1]);
+        compile(ast);
+    } else 
+        error("Please give an input\n");
     return 0;
 }

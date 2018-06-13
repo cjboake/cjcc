@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include "cjcc.h"
 
+#define EXPR_LEN 100
+
 void assembly_header()
 {
     printf("\nASSEMBLY CODE\n\n");
@@ -41,12 +43,19 @@ void alloc_funct_args(Ast **a)
 
 void alloc_var(Ast *var)
 {
-    printf("alloc_var\n");
     if(var->type == AST_INT)
-        printf("mov     dword ptr [rbp - 4], %d \n", var->ival);
+        printf("mov     dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->ival);
 
     if(var->type == '+' || var->type == '-') 
         emit_op(var);
+}
+
+void emit_expr(Ast *ast)
+{
+        if(ast->type == AST_VAR)
+            alloc_var(ast->var);
+        
+        
 }
 
 void emit_func(Ast *ast)
@@ -56,32 +65,20 @@ void emit_func(Ast *ast)
     printf("_%s:\n", ast->fname);
     printf("\tpush  rbp\n\t");
     printf("mov   rbp, rsp\n\t");
-    
-    // handle function arguments
-    if(ast->nargs > 0)
-        alloc_funct_args(ast->args);
-    
-    // read function contents, var or declaration
-    // will need to implement a loop over the body Ast**
-    //if(ast->body->type == AST_VAR)
-      //  alloc_var(ast->var); 
-   
 }
 
 void compile(Ast *ast)
 {
+    int i = 0;
     assembly_header();
-    //if(ast->type == AST_FUNC) {     
-    //    emit_func(ast->body); 
-    //}
-    if(ast->type == AST_VAR) {     
-    //    printf("In the new AST_VAR block\n"); 
-//        emit_intexpr(ast); 
-    }
-    if(ast->type == AST_INT) {     
-    //    emit_intexpr(ast); 
-    }
-    if(ast->type == AST_PLUS || ast->type == AST_MINUS) {
-   //     emit_op(ast); 
+    if(ast->type == AST_FUNC) {     
+      if(ast->nargs > 0)
+        alloc_funct_args(ast->args);
+        emit_func(ast); 
+        for(;i < EXPR_LEN; i++){
+            if(!ast->body[i])
+                break;
+            emit_expr(ast->body[i]);
+        }
     }
 }

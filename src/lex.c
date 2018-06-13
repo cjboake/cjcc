@@ -91,22 +91,6 @@ Token *read_num(FILE *fp, int n)
     }
 }
 
-
-Ast *func_or_ident(FILE *fp, Token *tok)
-{
-    char *name = tok->sval;
-    skip_space(fp);
-    Token *t = read_token(fp);
-    if(t->punct == '('){
-        return read_func_args(fp, name); 
-    } else {
-        unget_token(fp, t);
-        // produce ast->name & ast->var->holds whatver val
-        // ex: ast->var->ival || ast->var-type (+)
-        return make_ast_var(make_var(name), rd_expr2(fp)); 
-    }
-}
-
 Token *read_char(FILE *fp, int ch)
 {
     int c = fgetc(fp);

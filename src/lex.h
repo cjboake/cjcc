@@ -14,7 +14,6 @@ Token *make_string_tok(char *string);
 void skip_space(FILE *fp);
 Token *read_ident(FILE *fp, char d);
 Token *read_num(FILE *fp, int n);
-Ast *func_or_ident(FILE *fp, Token *tok);
 Token *read_char(FILE *fp, int ch);
 Token *make_punc_tok(int c);
 Token *make_int_tok(int n);

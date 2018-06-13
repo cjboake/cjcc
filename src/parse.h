@@ -15,4 +15,7 @@ Ast *make_ast_func(char *name, int n, Ast **a);
 Ast *make_ast_int(int val);
 Ast *make_ast_node(Ast *l, Ast *r, int op);
 Ast *read_func_args(FILE *fp, char *buf);
+Ast *make_var(char *name);
+Ast *func_or_ident(FILE *fp, Token *tok);
+//Ast *find_var(char *name);
 #endif /* PARSE_H */

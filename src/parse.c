@@ -30,6 +30,7 @@ Ast *make_var(char *name)
     Ast *varr = malloc(sizeof(Ast));
     varr->type = AST_VAR;
     varr->name = name;
+    varr->vpos = 1;
     return varr;
 }
 
@@ -121,6 +122,31 @@ Ast *make_ast_string(char *str)
     return a; 
 }
 
+int find_var(char *name, Ast **fbod)
+{
+    for(int i = 0; i < 100; i++){
+        if(!fbod[i]) break;
+        if(strcmp(name, fbod[i]->name))
+            return 1;
+    }
+    return 0; 
+}
+
+Ast *func_or_ident(FILE *fp, Token *tok)
+{
+    char *name = tok->sval;
+    skip_space(fp);
+    Token *t = read_token(fp);
+    if(t->punct == '('){
+        return read_func_args(fp, name); 
+    } else {
+        unget_token(fp, t);
+        // produce ast->name & ast->var->holds whatver val
+        // ex: ast->var->ival || ast->var-type (+)
+        return make_ast_var(make_var(name), rd_expr2(fp)); 
+    }
+}
+
 Ast *read_primitive(FILE *fp, Token *tok)
 {
     switch(tok->type){
@@ -147,7 +173,10 @@ Ast *make_fn(Ast *f, FILE *fp)
             f->body = fbod; 
             break; 
         }        
-        fbod[i] = a;
+        if(1){
+            if(a->type == AST_VAR) a->var->vpos = i+1;
+            fbod[i] = a;
+        }
         if( 0 ){  //check_for('}', fp)){
             f->body = fbod; 
             break;
