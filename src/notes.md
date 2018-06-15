@@ -293,4 +293,24 @@ so that it can hold many expressions. As such, all of the functions will still b
 
 - I really made more progress than I realized today, but because I thought that this was already done, it's annoying to have to actually do it. But that's life sometimes... Now it actually works with multiple expressions though, and should hook up multiple functions too, so at least I shouldn't have to revisit this in a major way.
 - So tomorrow, I'll actually move on to the code gen for the vars.
-- Also, I finally properly separated everything into files, which it was very much time to do. 
+- Also, I finally properly separated everything into files, which it was very much time to do.
+
+6/12/18
+-------
+- I was pretty stressed yesterday so I didn't really get to work on the compiler...
+- So, as it always seems to return to, I have to add more capability to my lexer
+- I've implemented variables, and they are being allocated into memory, but alas... declarations vs. expressions are becoming a problem, so I'm going to have to recognize the type keyword so that I can set the difference here.
+- I might hit the return keyword while I'm at it.
+- Otherwise things are good, and I made a little progress. I see more deeply how variables are implemented... it just sucks because it feels as though there is so much ground to cover.
+
+6/13/18
+-------
+- Well even though I spend three hours working today, it didn't feel like I got a lot done, but I really did.
+- I added var positions, which was necessary to place the the bit location of vars in the assembly code
+- Unfortunately, this made me realize how far I have to go before the variables are even close to being implemented. Sigh.
+
+6/15/18
+-------
+- Man, this log is not looking good lately. I didn't work on the compiler since I went to jake's house last night to try and see what the deal on this ML email app is... doesn't look like it's gonna happen. Moving on.
+- So I am kind of at the bottom of another mountain in terms of implementations here... without actually having types, the code gen is getting kind of fucky. So I'm biting the bullet, and still going on the parsing, now with type checking...
+- I'm doing 'int' today, and if things go well, maybe 'return'. That will required modififying the node structure for functs though which may/may not be a major pain.

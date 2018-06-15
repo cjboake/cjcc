@@ -1,5 +1,5 @@
-main(){
-    x = 4;
-    y = 7;
-    x;
+main()
+{
+    int x = 4;
+    int y = 7;
 }

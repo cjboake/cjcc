@@ -27,6 +27,8 @@ Ast *ast_string(char buffer[])
 
 Ast *make_var(char *name)
 {
+    printf("in the make_var baby\n");
+    
     Ast *varr = malloc(sizeof(Ast));
     varr->type = AST_VAR;
     varr->name = name;
@@ -36,6 +38,7 @@ Ast *make_var(char *name)
 
 Ast *make_ast_var(Ast *varr, Ast *val)
 {
+    printf("making that var son\n");
     varr->var = val;
     return varr;
 }
@@ -59,6 +62,22 @@ Ast *make_ast_int(int val)
     return r;
 }
 
+Ast *make_ast_string(char *str)
+{
+    Ast *a = malloc(sizeof(Ast));
+    a->type = AST_STR; 
+    a->sval = str;
+    return a; 
+}
+
+Ast *make_ast_char(char c)
+{
+    Ast *a = malloc(sizeof(Ast));
+    a->type = AST_CHAR;
+    a->sval = &c; 
+    return a;
+}
+
 Ast *make_ast_node(Ast *l, Ast *r, int op)
 {
     Ast *nd = malloc(sizeof(Ast));
@@ -66,6 +85,18 @@ Ast *make_ast_node(Ast *l, Ast *r, int op)
     nd->left = l;
     nd->right = r;
     return nd;
+}
+
+int priority(char op)
+{
+    switch(op) {
+        case '+':
+            return 0;
+        case '-':
+            return 1;
+        default:
+            return -1;
+    }
 }
 
 Ast *read_func_args(FILE *fp, char *buf)
@@ -94,32 +125,22 @@ Ast *read_func_args(FILE *fp, char *buf)
     return make_ast_func(buf, nargs, args);
 }
 
-int priority(char op)
+int is_keyword(Token *tok)
 {
-    switch(op) {
-        case '+':
-            return 0;
-        case '-':
-            return 1;
-        default:
-            return -1;
+    printf("In is_keyword *******\n");
+    
+    int r = 0;
+    if(tok->type != TTYPE_IDENT)
+        return r;
+    char *keywords[] = { "int", "return" };
+    for(int i=0; i < 3;i++) {
+        printf("in the for loop\n");
+        if(!strcmp(keywords[i], tok->sval)){
+            printf("That shit was true\n");
+            return r = 1;  
+        }
     }
-}
-
-Ast *make_ast_char(char c)
-{
-    Ast *a = malloc(sizeof(Ast));
-    a->type = AST_CHAR;
-    a->sval = &c; 
-    return a;
-}
-
-Ast *make_ast_string(char *str)
-{
-    Ast *a = malloc(sizeof(Ast));
-    a->type = AST_STR; 
-    a->sval = str;
-    return a; 
+    return r;
 }
 
 int find_var(char *name, Ast **fbod)
@@ -140,10 +161,9 @@ Ast *func_or_ident(FILE *fp, Token *tok)
     if(t->punct == '('){
         return read_func_args(fp, name); 
     } else {
-        unget_token(fp, t);
         // produce ast->name & ast->var->holds whatver val
         // ex: ast->var->ival || ast->var-type (+)
-        return make_ast_var(make_var(name), rd_expr2(fp)); 
+        return is_keyword(tok) ? make_ast_var(make_var(name), rd_expr2(fp)) : rd_expr2(fp); 
     }
 }
 
