@@ -314,3 +314,12 @@ so that it can hold many expressions. As such, all of the functions will still b
 - Man, this log is not looking good lately. I didn't work on the compiler since I went to jake's house last night to try and see what the deal on this ML email app is... doesn't look like it's gonna happen. Moving on.
 - So I am kind of at the bottom of another mountain in terms of implementations here... without actually having types, the code gen is getting kind of fucky. So I'm biting the bullet, and still going on the parsing, now with type checking...
 - I'm doing 'int' today, and if things go well, maybe 'return'. That will required modififying the node structure for functs though which may/may not be a major pain.
+
+- The current issue is that instead of reading the type, it's making the type it's name. I think because I deleted the read_decl when I did the git reset.
+
+*End note: The whole issue was that there isn't an AST var/vs decl distinction, which is ultimately causing nothing to happen in rd_expr2
+
+- Okay so I just couldn't walk away afte that. It was killing me.
+- I managed to get the implemenation of vars/decls in, so that now the function parsing can read the difference
+- This will give it the ability to differentiate existing vars in the fbod
+- Man, that was annoying

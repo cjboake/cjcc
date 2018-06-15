@@ -53,7 +53,7 @@ void alloc_var(Ast *var)
 void emit_expr(Ast *ast)
 {
         if(ast->type == AST_VAR)
-            alloc_var(ast->var);
+            alloc_var(ast->value);
         
         
 }

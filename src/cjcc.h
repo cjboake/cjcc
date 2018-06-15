@@ -12,7 +12,8 @@ enum {
     AST_STR, 
     AST_CHAR,
     AST_FUNC,
-    AST_VAR
+    AST_VAR, 
+    AST_DECL
 };
 
 enum {
@@ -46,7 +47,7 @@ typedef struct Ast {
     struct {
       char *name;
       int vpos;
-      struct Ast *var;
+      struct Ast *value;
     };
     // Binary operator
     struct {

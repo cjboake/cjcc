@@ -166,7 +166,7 @@ void print_ast(Ast *ast)
             break;
         case AST_VAR:
             printf("%s", ast->name);
-            print_ast(ast->var);
+            print_ast(ast->value);
         default:
             printf("( %c", ast->type);
             print_ast(ast->left);

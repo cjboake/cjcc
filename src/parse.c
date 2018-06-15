@@ -25,19 +25,28 @@ Ast *ast_string(char buffer[])
     r->sval = buffer; return r;
 }
 
-Ast *make_var(char *name)
+Ast *make_decl(char *name)
 {
-    Ast *varr = malloc(sizeof(Ast));
-    varr->type = AST_VAR;
-    varr->name = name;
-    varr->vpos = 1;
-    return varr;
+    Ast *variable = malloc(sizeof(Ast));
+    variable->type = AST_DECL;
+    variable->name = name;
+    variable->vpos = 1;
+    return variable;
 }
 
-Ast *make_ast_var(Ast *varr, Ast *val)
+Ast *make_var(char *name)
 {
-    varr->var = val;
-    return varr;
+    Ast *variable = malloc(sizeof(Ast));
+    variable->type = AST_VAR;
+    variable->name = name;
+    variable->vpos = 1;
+    return variable;
+}
+
+Ast *make_ast_var(Ast *variable, Ast *val)
+{
+    variable->value = val;
+    return variable;
 }
 
 Ast *make_ast_func(char *name, int n, Ast **a)
@@ -139,11 +148,29 @@ int is_keyword(Token *tok)
 int find_var(char *name, Ast **fbod)
 {
     for(int i = 0; i < 100; i++){
+        if(fbod)
+            printf("fbod[%d], %s\n", i, fbod[i]->value->sval);
         if(!fbod[i]) break;
         if(strcmp(name, fbod[i]->name))
             return 1;
     }
     return 0; 
+}
+
+Ast *read_decl(FILE *fp)
+{
+    fseek(fp, -1L, SEEK_CUR);
+    Token *tok = read_token(fp);
+    char *name = tok->sval;
+    Ast *a = make_ast_var(make_decl(name), rd_expr2(fp)); 
+    return a;
+}
+
+Ast *read_var(FILE *fp)
+{
+    Token *tok = read_token(fp);
+    char *name = tok->sval;
+    return make_ast_var(make_var(name), rd_expr2(fp)); 
 }
 
 Ast *func_or_ident(FILE *fp, Token *tok)
@@ -156,7 +183,7 @@ Ast *func_or_ident(FILE *fp, Token *tok)
     } else {
         // produce ast->name & ast->var->holds whatver val
         // ex: ast->var->ival || ast->var-type (+)
-        return is_keyword(tok) ? make_ast_var(make_var(name), rd_expr2(fp)) : rd_expr2(fp); 
+        return is_keyword(tok) ? read_decl(fp) : read_var(fp); 
     }
 }
 
@@ -182,11 +209,13 @@ Ast *make_fn(Ast *f, FILE *fp)
     Ast **fbod = malloc(sizeof(Ast) * MAX_ARGS + 1);
     for(int i = 0; i < EXPR_LEN; i++){
         Ast *a = rd_expr2(fp);       
+        printf("*a->name: %s\n", a->name);
         if(!a){
             f->body = fbod; 
             break; 
-        }        
-        if(a->type == AST_VAR) a->var->vpos = i+1;
+        }       
+        //int d = find_var(a->name, fbod);
+        if(a->type == AST_VAR) a->value->vpos = i+1;
         fbod[i] = a;
     } 
     return f;
@@ -209,10 +238,16 @@ Ast *rd_expr2(FILE *fp)
     if(ast->type == AST_INT){
         if(check_for(';', fp)) return ast;
     } 
+    if(ast->type == AST_DECL){
+        skip_space(fp);
+        expect(fp, '=');
+        ast->value = rd_expr2(fp);
+        return ast; 
+    }
     if(ast->type == AST_VAR){
         skip_space(fp);
         expect(fp, '=');
-        ast->var = rd_expr2(fp);
+        ast->value = rd_expr2(fp);
         return ast;
     }
     skip_space(fp);
