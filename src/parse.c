@@ -27,8 +27,6 @@ Ast *ast_string(char buffer[])
 
 Ast *make_var(char *name)
 {
-    printf("in the make_var baby\n");
-    
     Ast *varr = malloc(sizeof(Ast));
     varr->type = AST_VAR;
     varr->name = name;
@@ -38,7 +36,6 @@ Ast *make_var(char *name)
 
 Ast *make_ast_var(Ast *varr, Ast *val)
 {
-    printf("making that var son\n");
     varr->var = val;
     return varr;
 }
@@ -127,16 +124,12 @@ Ast *read_func_args(FILE *fp, char *buf)
 
 int is_keyword(Token *tok)
 {
-    printf("In is_keyword *******\n");
-    
     int r = 0;
     if(tok->type != TTYPE_IDENT)
         return r;
     char *keywords[] = { "int", "return" };
     for(int i=0; i < 3;i++) {
-        printf("in the for loop\n");
         if(!strcmp(keywords[i], tok->sval)){
-            printf("That shit was true\n");
             return r = 1;  
         }
     }
@@ -193,14 +186,8 @@ Ast *make_fn(Ast *f, FILE *fp)
             f->body = fbod; 
             break; 
         }        
-        if(1){
-            if(a->type == AST_VAR) a->var->vpos = i+1;
-            fbod[i] = a;
-        }
-        if( 0 ){  //check_for('}', fp)){
-            f->body = fbod; 
-            break;
-        }
+        if(a->type == AST_VAR) a->var->vpos = i+1;
+        fbod[i] = a;
     } 
     return f;
 }
