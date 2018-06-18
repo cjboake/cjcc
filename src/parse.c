@@ -148,11 +148,12 @@ int is_keyword(Token *tok)
 int find_var(char *name, Ast **fbod)
 {
     for(int i = 0; i < 100; i++){
-        if(fbod)
-            printf("fbod[%d], %s\n", i, fbod[i]->value->sval);
+        //if(fbod)
+            //printf("fbod[%d], %s\n", i, fbod[i]->value->sval);
         if(!fbod[i]) break;
-        if(strcmp(name, fbod[i]->name))
-            return 1;
+        printf("fbod[i] -> %d\n", fbod[i]->body->value);
+        //if(strcmp(name, fbod[i]->name))
+        //    return 1;
     }
     return 0; 
 }
@@ -214,7 +215,7 @@ Ast *make_fn(Ast *f, FILE *fp)
             f->body = fbod; 
             break; 
         }       
-        //int d = find_var(a->name, fbod);
+        int d = find_var(a->name, fbod);
         if(a->type == AST_VAR) a->value->vpos = i+1;
         fbod[i] = a;
     } 
