@@ -323,3 +323,8 @@ so that it can hold many expressions. As such, all of the functions will still b
 - I managed to get the implemenation of vars/decls in, so that now the function parsing can read the difference
 - This will give it the ability to differentiate existing vars in the fbod
 - Man, that was annoying
+
+6/20/18
+-------
+- Well, I haven't worked on this for a few days, since I've had to get the resume put together. That's no fun, but I learned LaTeX in the process, so it looks great.
+- I'm gonna try and sort out the whole variable data structure issue today... I want to finally get to see it do something.
