@@ -179,8 +179,6 @@ Ast *func_or_ident(FILE *fp, Token *tok)
     if(t->punct == '('){
         return read_func_args(fp, name); 
     } else {
-        // produce ast->name & ast->var->holds whatver val
-        // ex: ast->var->ival || ast->var-type (+)
         return is_keyword(tok) ? read_decl(fp) : read_var(fp); 
     }
 }
@@ -212,8 +210,7 @@ Ast *make_fn(Ast *f, FILE *fp)
             break; 
         }       
         int d = find_var(a->name, fbod);
-        if(a->type == AST_VAR && !d) 
-            a->value->vpos = i+1;
+        if(a->type == AST_DECL && !d) a->value->vpos = i+1;
         fbod[i] = a;
     }
     return f;
@@ -233,6 +230,7 @@ Ast *rd_expr2(FILE *fp)
         ast = make_fn(ast, fp);
         return ast;
     }
+    // change this guy to look for operators
     if(ast->type == AST_INT){
         if(check_for(';', fp)) return ast;
     } 

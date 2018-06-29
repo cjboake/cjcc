@@ -20,6 +20,7 @@ void emit_intexpr(Ast *ast)
         printf("\tmov rax, %d\n", ast->ival);
 }
 
+// original emit_op, may not last
 void emit_op(Ast *ast)
 {
     char *op;
@@ -28,6 +29,7 @@ void emit_op(Ast *ast)
     if(ast->type == '-')
         op = "sub";
     emit_intexpr(ast->left);
+    printf("ast->right: %d\n", ast->left->ival);
     if(ast->right->type == AST_INT)
         printf("\tmov rbx, %d\n\t", ast->right->ival);
     printf("%s rax, rbx\n\t", op);
@@ -44,18 +46,18 @@ void alloc_funct_args(Ast **a)
 void alloc_var(Ast *var)
 {
     if(var->type == AST_INT)
-        printf("mov     dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->ival);
+        printf("mov  dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->ival);
 
-    if(var->type == '+' || var->type == '-') 
+    if(var->type == '+' || var->type == '-'){
+        printf("we are in the operator block\n");
         emit_op(var);
+    }
 }
 
 void emit_expr(Ast *ast)
 {
-        if(ast->type == AST_VAR)
-            alloc_var(ast->value);
-        
-        
+    if(ast->type == AST_DECL)
+        alloc_var(ast->value);
 }
 
 void emit_func(Ast *ast)
@@ -69,16 +71,15 @@ void emit_func(Ast *ast)
 
 void compile(Ast *ast)
 {
-    int i = 0;
     assembly_header();
     if(ast->type == AST_FUNC) {     
       if(ast->nargs > 0)
         alloc_funct_args(ast->args);
         emit_func(ast); 
-        for(;i < EXPR_LEN; i++){
-            if(!ast->body[i])
-                break;
-            emit_expr(ast->body[i]);
+        for(int i = 0;i < EXPR_LEN; i++){
+            if(ast->body[i])
+                emit_expr(ast->body[i]);
+            if(ast->body[i] == NULL) break;
         }
     }
 }

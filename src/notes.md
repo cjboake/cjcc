@@ -328,3 +328,14 @@ so that it can hold many expressions. As such, all of the functions will still b
 -------
 - Well, I haven't worked on this for a few days, since I've had to get the resume put together. That's no fun, but I learned LaTeX in the process, so it looks great.
 - I'm gonna try and sort out the whole variable data structure issue today... I want to finally get to see it do something.
+
+- Well I got the variable thing I was talking about sorted out. It checks for variables and allocates them in memory now.
+- The next step, since we are now determing if they are declarations/instantiations, will be to use that to actually do things like arithemtic with.
+- I will need to update the parsing to actually handle this however... it doesn't seem to be parsing arithmetic for variables. Hopefully that's a simple update.
+- Unfortunately, when I refactored rd_expr2, I lost this capability so it will need to be re-implemented. Sigh.
+
+6/29/18
+-------
+- I have taken the last week or so off from the compiler's development to focus on interview prep questions. I find that to be very boring in comparison though, so I wanted to jump back on the compiler this weekend and get some work done.
+- It looks like I'll have to try and pick up where my last entry left off, let's see how that goes.
+- So I need to essentially refactor rd_expr2 in such a way that I can once again parse arithmetic since the first implementation was very naive. Here we go.
