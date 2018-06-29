@@ -216,6 +216,14 @@ Ast *make_fn(Ast *f, FILE *fp)
     return f;
 }
 
+Ast *make_arith_expr(Ast *left, Ast *op, FILE *fp)
+{
+    op->left = left;
+    Ast *right = rd_expr2(fp);
+    op->right = right;
+    return op;
+}
+
 Ast *rd_expr2(FILE *fp)
 {
     skip_space(fp);
@@ -231,9 +239,20 @@ Ast *rd_expr2(FILE *fp)
         return ast;
     }
     // change this guy to look for operators
+    if(ast->type == AST_PLUS){
+        printf("AST_PLUS: %c\n", ast->type);
+        return make_ast_operator(ast->type);
+    }
     if(ast->type == AST_INT){
         if(check_for(';', fp)) return ast;
-    } 
+        if(check_for('+', fp)){
+            Ast *op = make_ast_operator('+');
+            return make_arith_expr(ast, op, fp);
+        } else if(check_for('-', fp)){
+            Ast *op = make_ast_operator('-');
+            return make_arith_expr(ast, op, fp); 
+        }
+    }
     if(ast->type == AST_DECL){
         skip_space(fp);
         expect(fp, '=');
