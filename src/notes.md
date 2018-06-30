@@ -341,3 +341,7 @@ so that it can hold many expressions. As such, all of the functions will still b
 - So I need to essentially refactor rd_expr2 in such a way that I can once again parse arithmetic since the first implementation was very naive. Here we go.
 
 - Well I'm losing my mind so I'm going to take a break for a bit. I implemented the arithemetic thing that I wanted to do, but frustratingly, the parsing is all messed up for "return" nodes, and isn't successfully creating them yet. I don't know why quit, but it's not reading the first expression after the "return" keyword. This is probably mostly a sign that my parsing simply isn't very robust.
+
+*End of Day:
+- I am so happy, I finished the parsing of the return statements, as well as multiple expression math!
+- Basically, it was hitting the end of the file or block, returning null, and blowing up. Simply returning NULL for the EOF was really all that was needed.
