@@ -345,3 +345,9 @@ so that it can hold many expressions. As such, all of the functions will still b
 *End of Day:
 - I am so happy, I finished the parsing of the return statements, as well as multiple expression math!
 - Basically, it was hitting the end of the file or block, returning null, and blowing up. Simply returning NULL for the EOF was really all that was needed.
+- note: may need to check var positions of instances for assembly gen of their values
+
+6/30/18
+-------
+- Yesterday went well, considering that I was able to clean up the parsing issue at 1:30am last night. It turned out to be a fairly simple change, but one that I just hadn't considered fully. Now, it seems obviousy, that one would need to know when they are done parsing a file.
+- The goal today is implement assembly generation for the entirety of the implemented features. It can now parse declarations, instances, and variables, finally. The only thing missing from the parsing is function return types, which I will do after I finish the code generation. I really want to get this thing working.

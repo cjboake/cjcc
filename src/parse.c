@@ -189,7 +189,6 @@ Ast *rd_statement(FILE *fp, Token *tok)
         fseek(fp, -1L, SEEK_CUR);
         Ast *r = rd_expr2(fp);
         Ast *mr = make_return(r);
-        
         return mr;
     } else { 
         return read_var(fp, tok);
@@ -260,11 +259,13 @@ Ast *rd_expr2(FILE *fp)
         return NULL;
     }
     Ast *ast = read_primitive(fp, tok);
-    
     if(!ast) return NULL;
     if(ast->type == AST_FUNC){
         ast = make_fn(ast, fp);
         return ast;
+    }
+    if(ast->type == AST_RET){
+        return ast; 
     }
     if(ast->type == AST_PLUS){
         return make_ast_operator(ast->type);

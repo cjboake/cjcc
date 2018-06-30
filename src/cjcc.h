@@ -8,11 +8,11 @@
 enum {
     AST_PLUS,
     AST_MINUS,
-    AST_INT,
+    AST_INT,  // 2
     AST_STR, 
     AST_CHAR,
     AST_FUNC,
-    AST_VAR, 
+    AST_VAR, // 6
     AST_DECL,
     AST_RET
 };

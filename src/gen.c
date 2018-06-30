@@ -56,6 +56,13 @@ void alloc_var(Ast *var)
 
 void emit_expr(Ast *ast)
 {
+    printf("emit_expr\n");
+    if(ast->type == 7)
+        printf("ast->type: %d\n", ast->type);
+    else                           //   ret   +     x   
+        printf("ast->type2: %d\n", ast->type);
+        //printf("ast->type2: %s\n", ast->left->left->left->name);
+
     if(ast->type == AST_DECL)
         alloc_var(ast->value);
     if(ast->type == AST_VAR)
@@ -77,8 +84,8 @@ void compile(Ast *ast)
 {
     assembly_header();
     if(ast->type == AST_FUNC) {     
-      if(ast->nargs > 0)
-        alloc_funct_args(ast->args);
+        if(ast->nargs > 0)
+            alloc_funct_args(ast->args);
         emit_func(ast); 
         for(int i = 0;i < EXPR_LEN; i++){
             if(ast->body[i])
