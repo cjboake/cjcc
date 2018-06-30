@@ -58,6 +58,10 @@ void emit_expr(Ast *ast)
 {
     if(ast->type == AST_DECL)
         alloc_var(ast->value);
+    if(ast->type == AST_VAR)
+        printf("We made it guys!\n");
+    if(ast->type == AST_RET)
+        printf("We have a return!\n");
 }
 
 void emit_func(Ast *ast)

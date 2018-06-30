@@ -339,3 +339,5 @@ so that it can hold many expressions. As such, all of the functions will still b
 - I have taken the last week or so off from the compiler's development to focus on interview prep questions. I find that to be very boring in comparison though, so I wanted to jump back on the compiler this weekend and get some work done.
 - It looks like I'll have to try and pick up where my last entry left off, let's see how that goes.
 - So I need to essentially refactor rd_expr2 in such a way that I can once again parse arithmetic since the first implementation was very naive. Here we go.
+
+- Well I'm losing my mind so I'm going to take a break for a bit. I implemented the arithemetic thing that I wanted to do, but frustratingly, the parsing is all messed up for "return" nodes, and isn't successfully creating them yet. I don't know why quit, but it's not reading the first expression after the "return" keyword. This is probably mostly a sign that my parsing simply isn't very robust.

@@ -13,7 +13,8 @@ enum {
     AST_CHAR,
     AST_FUNC,
     AST_VAR, 
-    AST_DECL
+    AST_DECL,
+    AST_RET
 };
 
 enum {
@@ -58,6 +59,7 @@ typedef struct Ast {
     struct {
       char *fname;
       int nargs;
+      int return_type;
       struct Ast **args;
       struct Ast **body;
     };
@@ -65,6 +67,10 @@ typedef struct Ast {
     struct {
       struct Ast *decl_var;
       struct Ast *decl_init;
+    };
+    // Return value
+    struct {
+      struct Ast *ret_val;
     };
   };
 } Ast;

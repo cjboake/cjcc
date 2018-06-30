@@ -43,6 +43,14 @@ Ast *make_var(char *name)
     return variable;
 }
 
+Ast *make_return(Ast *val)
+{
+    Ast *ret = malloc(sizeof(Ast));
+    ret->type = AST_RET;
+    ret->ret_val = val;
+    return ret;
+}
+
 Ast *make_ast_var(Ast *variable, Ast *val)
 {
     variable->value = val;
@@ -131,13 +139,13 @@ Ast *read_func_args(FILE *fp, char *buf)
     return make_ast_func(buf, nargs, args);
 }
 
-int is_keyword(Token *tok)
+int is_type_keyword(Token *tok)
 {
     int r = 0;
     if(tok->type != TTYPE_IDENT)
         return r;
-    char *keywords[] = { "int", "return" };
-    for(int i=0; i < 3;i++) {
+    char *keywords[] = { "int", "char" };
+    for(int i=0; i < 3; i++) {
         if(!strcmp(keywords[i], tok->sval)){
             return r = 1;  
         }
@@ -164,23 +172,38 @@ Ast *read_decl(FILE *fp)
     return a;
 }
 
-Ast *read_var(FILE *fp)
+int is_token_ident(Token *tok, char *ident)
 {
-    Token *tok = read_token(fp);
+    return tok->type == TTYPE_IDENT && !strcmp(tok->sval, ident);
+}
+
+Ast *read_var(FILE *fp, Token *tok)
+{
     char *name = tok->sval;
     return make_ast_var(make_var(name), rd_expr2(fp)); 
+}
+
+Ast *rd_statement(FILE *fp, Token *tok)
+{
+    if(is_token_ident(tok, "return")){ 
+        fseek(fp, -1L, SEEK_CUR);
+        Ast *r = rd_expr2(fp);
+        Ast *mr = make_return(r);
+        
+        return mr;
+    } else { 
+        return read_var(fp, tok);
+    }
 }
 
 Ast *func_or_ident(FILE *fp, Token *tok)
 {
     char *name = tok->sval;
     skip_space(fp);
-    Token *t = read_token(fp);
-    if(t->punct == '('){
+    if(check_for('(', fp)){
         return read_func_args(fp, name); 
-    } else {
-        return is_keyword(tok) ? read_decl(fp) : read_var(fp); 
-    }
+    } 
+    return is_type_keyword(tok) ? read_decl(fp) : rd_statement(fp, tok); 
 }
 
 Ast *read_primitive(FILE *fp, Token *tok)
@@ -212,6 +235,7 @@ Ast *make_fn(Ast *f, FILE *fp)
         int d = find_var(a->name, fbod);
         if(a->type == AST_DECL && !d) a->value->vpos = i+1;
         fbod[i] = a;
+        //if(check_for('}', fp)) break;
     }
     return f;
 }
@@ -226,21 +250,23 @@ Ast *make_arith_expr(Ast *left, Ast *op, FILE *fp)
 
 Ast *rd_expr2(FILE *fp)
 {
-    skip_space(fp);
+    //skip_space(fp);
     Token *tok = read_token(fp);
+    if(tok == NULL){ 
+        return NULL;
+    }
     if(tok->type == TTYPE_PUNCT || tok == NULL){ 
         unget_token(fp, tok);
         return NULL;
     }
     Ast *ast = read_primitive(fp, tok);
+    
     if(!ast) return NULL;
     if(ast->type == AST_FUNC){
         ast = make_fn(ast, fp);
         return ast;
     }
-    // change this guy to look for operators
     if(ast->type == AST_PLUS){
-        printf("AST_PLUS: %c\n", ast->type);
         return make_ast_operator(ast->type);
     }
     if(ast->type == AST_INT){
@@ -257,13 +283,23 @@ Ast *rd_expr2(FILE *fp)
         skip_space(fp);
         expect(fp, '=');
         ast->value = rd_expr2(fp);
+        
         return ast; 
     }
     if(ast->type == AST_VAR){
         skip_space(fp);
-        expect(fp, '=');
-        ast->value = rd_expr2(fp);
-        return ast;
+        if(check_for('=', fp)){ 
+            return ast->value = rd_expr2(fp);
+        }
+        if(check_for('+', fp)){
+            Ast *op = make_ast_operator('+');
+            return make_arith_expr(ast, op, fp); 
+        } else if(check_for('-', fp)){
+            Ast *op = make_ast_operator('-');
+            return make_arith_expr(ast, op, fp); 
+        } else if(check_for(';', fp)){
+            return ast;
+        }
     }
     skip_space(fp);
     int d = fgetc(fp);
@@ -282,7 +318,3 @@ Ast *read_expr(FILE *fp)
     a = rd_expr2(fp);
     return a; 
 }
-
-
-
-// test

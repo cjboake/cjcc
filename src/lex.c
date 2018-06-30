@@ -109,7 +109,10 @@ Token *read_token(FILE *fp)
 {
     skip_space(fp);
     int c = fgetc(fp);
-    if(c == EOF) error("Unexpected EOF\n");
+    
+    if(c == EOF){
+        return NULL;//error("Unexpected EOF\n");
+    }
     switch(c) {
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
@@ -133,7 +136,7 @@ Token *read_token(FILE *fp)
         case EOF:
             return NULL;
         default:
-            printf("Unexpected Character %c", c);
+            printf("Unexpected Character %d", c);
     }
     return NULL;
 }
