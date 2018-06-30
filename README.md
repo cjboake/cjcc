@@ -16,3 +16,13 @@ incomplete, or simply not was I was looking for (a C compiler in C).
 If any of this interestests you or you have any questions, please don't hesitate to reach out. I am
 planning on doing a write up on this process regardless, but if I had anyone whom I knew was interested
 I would do it sooner.
+
+Compiling and Running 
+---------------------
+Right now everything is very simple:
+1. Clone the compiler, and cd into src/
+2. Run *make cjcc*
+3. *./cjcc num*
+
+This will currently print the assembly output for the test program, *num*. As this process changes,
+I'll update the instructions to follow.
