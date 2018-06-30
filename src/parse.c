@@ -153,16 +153,6 @@ int is_type_keyword(Token *tok)
     return r;
 }
 
-int find_var(char *name, Ast **fbod)
-{
-    for(int i = 0; i < 100; i++){
-        if(!fbod[i]) break;
-        if(strcmp(name, fbod[i]->name))
-            return 1;
-    }
-    return 0; 
-}
-
 Ast *read_decl(FILE *fp)
 {
     fseek(fp, -1L, SEEK_CUR);
@@ -222,6 +212,31 @@ Ast *read_primitive(FILE *fp, Token *tok)
     return NULL;
 }
 
+int find_var(char *name, Ast **fbod)
+{
+    for(int i = 0; i < 100; i++){
+        if(!fbod[i]) break;
+        if(!strcmp(name, fbod[i]->name)){
+            return 1;
+        }
+    }
+    return 0; 
+}
+
+int get_var_pos(char *name, Ast **fbod)
+{
+    printf("get_var_pos\n");
+    for(int i = 0; i < 100; i++){
+        if(!fbod[i]) break;
+        if(!strcmp(name, fbod[i]->name)){
+            printf("The position we want: %d", fbod[i]->vpos);
+            return fbod[i]->vpos;
+        }
+    }
+    error("Could not find previously declared var");
+    return -1;
+}
+
 Ast *make_fn(Ast *f, FILE *fp)
 {
     Ast **fbod = malloc(sizeof(Ast) * MAX_ARGS + 1);
@@ -232,7 +247,12 @@ Ast *make_fn(Ast *f, FILE *fp)
             break; 
         }       
         int d = find_var(a->name, fbod);
-        if(a->type == AST_DECL && !d) a->value->vpos = i+1;
+        if(a->type == AST_DECL && !d) a->vpos = i+1;
+        if(a->type == AST_VAR) a->value->vpos = get_var_pos(a->name, fbod);   
+        if(a->type == AST_RET)
+           // gonna need to make something that 
+           // goes the AST_RET node and assigns
+           // positions from the vars.
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }

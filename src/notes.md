@@ -351,3 +351,7 @@ so that it can hold many expressions. As such, all of the functions will still b
 -------
 - Yesterday went well, considering that I was able to clean up the parsing issue at 1:30am last night. It turned out to be a fairly simple change, but one that I just hadn't considered fully. Now, it seems obviousy, that one would need to know when they are done parsing a file.
 - The goal today is implement assembly generation for the entirety of the implemented features. It can now parse declarations, instances, and variables, finally. The only thing missing from the parsing is function return types, which I will do after I finish the code generation. I really want to get this thing working.
+
+- Things are going well, and it is printing assembly for adding x + y. I just need to make sure that I am passing the var positions to variable instances as well, which I forgot to do earlier.
+- I seem to have broken the var->pos again... better fix that.
+- Okay, so what's happening is that the function returns the AST_RET node as an element, but does not iterate furth upon that node in order to assign vpos to the variables. I'm taking a break, but tonight I'll go back and write a function to do that, which should solve the issue. This was a pretty easy thing to overlook, so I don't feel too bad.
