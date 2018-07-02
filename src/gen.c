@@ -37,8 +37,6 @@ void emit_op(Ast *ast)
     if(ast->type == AST_MINUS) op = "sub";
     //emit_intexpr(ast->left);  for non-vars, handle later
    
-    printf("var data ->\n");
-    printf("right pos: %s = %d\n", ast->right->name, ast->right->vpos);   //, ast->left->value->ival);
     //printf("left: %s = %d, pos: %d\n", ast->left->name, ast->left->value->ival, ast->left->vpos);
     //printf("right: %s = %d, pos: %d\n", ast->right->name, ast->right->value->ival, ast->right->vpos);
 

@@ -13,5 +13,7 @@ int fpeek(FILE *stream);
 void error(char *input);
 void expect(FILE * fp, int c);
 int check_for(char c, FILE *fp);
+void p(char *input);
+void node_check(Ast *node, int type);
 
 #endif

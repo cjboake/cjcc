@@ -223,9 +223,9 @@ int find_var(char *name, Ast **fbod)
     return 0; 
 }
 
-int get_var_pos(char *name, Ast **fbod)
+int get_vpos(char *name, Ast **fbod)
 {
-    printf("get_var_pos\n");
+    p("get_vpos\n");
     for(int i = 0; i < 100; i++){
         if(!fbod[i]) break;
         if(!strcmp(name, fbod[i]->name)){
@@ -235,6 +235,22 @@ int get_var_pos(char *name, Ast **fbod)
     }
     error("Could not find previously declared var");
     return -1;
+}
+
+int is_operator(Ast *node){
+    if(node->type == AST_PLUS || node->type == AST_MINUS) 
+        return 1;
+    return 0;
+}
+
+void ret_pos(Ast *node, Ast **fbod)
+{
+    if(is_operator(node)){
+        if(node->left != NULL) ret_pos(node->left, fbod);
+        if(node->right != NULL) ret_pos(node->right, fbod);
+    }
+    if(node->type == AST_VAR)
+        node->vpos = get_vpos(node->name, fbod);
 }
 
 Ast *make_fn(Ast *f, FILE *fp)
@@ -248,11 +264,8 @@ Ast *make_fn(Ast *f, FILE *fp)
         }       
         int d = find_var(a->name, fbod);
         if(a->type == AST_DECL && !d) a->vpos = i+1;
-        if(a->type == AST_VAR) a->value->vpos = get_var_pos(a->name, fbod);   
-        if(a->type == AST_RET)
-           // gonna need to make something that 
-           // goes the AST_RET node and assigns
-           // positions from the vars.
+        if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod);   
+        if(a->type == AST_RET) ret_pos(a->ret_val, fbod);
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }

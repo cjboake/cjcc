@@ -47,4 +47,13 @@ int check_for(char c, FILE *fp)
     }
 }
 
+void node_check(Ast *node, int type)
+{
+    if(node->type != type)
+        error("An unexpected node type was received\n");
+}
 
+void p(char *input)
+{
+   printf("%s\n", input); 
+}

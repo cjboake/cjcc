@@ -355,3 +355,8 @@ so that it can hold many expressions. As such, all of the functions will still b
 - Things are going well, and it is printing assembly for adding x + y. I just need to make sure that I am passing the var positions to variable instances as well, which I forgot to do earlier.
 - I seem to have broken the var->pos again... better fix that.
 - Okay, so what's happening is that the function returns the AST_RET node as an element, but does not iterate furth upon that node in order to assign vpos to the variables. I'm taking a break, but tonight I'll go back and write a function to do that, which should solve the issue. This was a pretty easy thing to overlook, so I don't feel too bad.
+- This shows that I need to make variable declariations vs. instances more robust in some way. This just feels like something that shouldn't happen.
+
+7/2/18
+------
+- Well I'm feeling pretty good about things. The immediate goal is to pass the the vpos to the var instances, which would leave me in a good spot. It would mean that the compiler "officially" works, at least for compiling functions that use int variables. Still, this is exciting. I'll check back in with how that went.
