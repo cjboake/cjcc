@@ -279,7 +279,7 @@ Ast *make_fn(Ast *f, FILE *fp)
             break; 
         }       
         int d = find_var(a->name, fbod);
-        if(a->type == AST_DECL && !d) a->vpos = i+1;
+        if(a->type == AST_DECL && !d) a->vpos = i+1+f->nargs;
         if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod);   
         if(a->type == AST_RET) ret_pos(a->ret_val, fbod);
         fbod[i] = a;
