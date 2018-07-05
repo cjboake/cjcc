@@ -14,7 +14,9 @@ enum {
     AST_FUNC,
     AST_VAR, // 6
     AST_DECL,
-    AST_RET
+    AST_RET,
+    AST_DECLN, // 9
+    AST_REF
 };
 
 enum {

@@ -360,3 +360,33 @@ so that it can hold many expressions. As such, all of the functions will still b
 7/2/18
 ------
 - Well I'm feeling pretty good about things. The immediate goal is to pass the the vpos to the var instances, which would leave me in a good spot. It would mean that the compiler "officially" works, at least for compiling functions that use int variables. Still, this is exciting. I'll check back in with how that went.
+
+Update: I succeeded, and now the positions are being correctly assigned. The compiler can finally successfully compile this program:
+-------------------------------------------------------------------------------------------------
+        
+        main(){
+            int x = 1;
+            int y = 2;
+            return x + y;
+        }
+
+This feels like the first major success of the project, since this is a "real" program that defines variables, performs an operation on them, and gives you the result. Of course, it is almost comically simple, but it is complete in the most basic sense. I still need to implement code generation for the function parameters, which will probably be the next step today, so that it can handle what an actual main would give it. 
+
+After that I should probably handle return types for functions... but that would require changes to the lexer, which is the source of endless heartache. Haha. 
+
+*Note on function params: Each paramter is passed to a new reg (edi, esi, etc.) and then those registers are passed to rbp once in the function being called. Write a looping assignment function.
+
+- So after some frustration parsing function arguments, I realized that I am an idiot and need to differentiate between function declaration and instantiations. Duh. Guess I have to parse those return types after all.
+
+7/4/18
+------
+- I'm very tired today but I'm going to go ahead and implement the code generation for assembly parameters. This will allow me to run a main() with stdin inputs and pass functions to each other. After that, adding type checking will complete my basic main!
+
+- Okay, I see the issue. My parser is only built to accept declarations with a value, e.g. `int x = 1;`. This becomes a problem because not only can you declare `int x;`, but that's precisely how they are defined in functions. So I need to be able to parse the latter. I'm surprised this didn't dawn on me earlier.
+- I'm so dumb, this isn't even something I don't have, I just needed to use the make_decl() function. Oy vey.
+
+- Not before taking a break: I need to update the parser to handle var instances better because it's looking for a value from them even if there isn't one. More nuance.
+
+7/5/18
+------
+- So first thing, I'm updating the parser to recognize var references that lack declaration/assignment. Once that is cleared up, I'm expected everything to work again and to be able to pass variables between functions. We will see.

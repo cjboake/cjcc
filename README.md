@@ -5,7 +5,7 @@ This compiler is a running project under development, and still quite far from c
 even at this stage.
 
 I'm writing it to learn about how compilers work, which when I started, was something I knew nothing about. While in
-the process, I'm keeping fairly detailsed notes in my notes.md file. If you are interested in my thought process as 
+the process, I'm keeping fairly detailed notes in my notes.md file. If you are interested in my thought process as 
 I wrote each element, that would be a good place to look. 
 
 Ultimately, I might write a series of blog posts, or even a PDF document that describes my experience,

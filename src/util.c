@@ -31,6 +31,7 @@ void expect(FILE * fp, int c)
 {
     Token *tok = read_token(fp);
     if(tok->punct != c){
+        printf("Token value: %d", tok->punct);
         fprintf(stderr, "Error, did not get expected token '%c'.\n", c);
         exit(0);
     }
