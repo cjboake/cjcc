@@ -34,6 +34,24 @@ Ast *make_decl(char *name)
     return variable;
 }
 
+Ast *make_decln(char *name)
+{
+    Ast *variable = malloc(sizeof(Ast));
+    variable->type = AST_DECLN;
+    variable->name = name;
+    variable->vpos = 1;
+    return variable;
+}
+
+Ast *make_ref(char *name)
+{    
+    Ast *variable = malloc(sizeof(Ast));
+    variable->type = AST_REF;
+    variable->name = name;
+    variable->vpos = 1;
+    return variable;
+}
+
 Ast *make_var(char *name)
 {
     Ast *variable = malloc(sizeof(Ast));
@@ -127,13 +145,13 @@ Ast *read_func_args(FILE *fp, char *buf)
         } else {
             Ast *a = read_primitive(fp, tok);
             args[i] = a;
+            nargs++;
             if(check_for(',', fp)) continue;
             if(check_for(')', fp)){
                 expect(fp, '{');
                 break;
             }
         }
-        nargs++;
     }
     Ast *a = malloc(sizeof(Ast));
     return make_ast_func(buf, nargs, args);
@@ -225,11 +243,9 @@ int find_var(char *name, Ast **fbod)
 
 int get_vpos(char *name, Ast **fbod)
 {
-    p("get_vpos\n");
     for(int i = 0; i < 100; i++){
         if(!fbod[i]) break;
         if(!strcmp(name, fbod[i]->name)){
-            printf("The position we want: %d", fbod[i]->vpos);
             return fbod[i]->vpos;
         }
     }

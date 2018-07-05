@@ -10,6 +10,8 @@ void emit_expr(Ast *ast);
 void return_statement(Ast *ast);
 void print_ret();
 
+char *REGS[] = {"edi", "esi", "edx", "ecx"};
+
 void assembly_header()
 {
     printf("\nASSEMBLY CODE\n\n");
@@ -37,9 +39,6 @@ void emit_op(Ast *ast)
     if(ast->type == AST_MINUS) op = "sub";
     //emit_intexpr(ast->left);  for non-vars, handle later
    
-    //printf("left: %s = %d, pos: %d\n", ast->left->name, ast->left->value->ival, ast->left->vpos);
-    //printf("right: %s = %d, pos: %d\n", ast->right->name, ast->right->value->ival, ast->right->vpos);
-
     if(is_var(ast->left))
         printf("mov eax, dword ptr [rbp - %d]\n\t", ast->left->vpos * 4);     
     if(is_var(ast->right))
@@ -52,9 +51,11 @@ void emit_op(Ast *ast)
     //printf("mov rbi, 0\n\t");
 }
 
-void alloc_funct_args(Ast **a)
+void alloc_funct_args(Ast *a)
 {
-    printf("alloc_funct_args\n");
+    for(int i = 1;i <= a->nargs;i++){
+        printf("mov dword ptr [rbp - %d], %s\n\t", i*4, REGS[i-1]);
+    }
 }
 
 void print_ret()
@@ -110,9 +111,8 @@ void compile(Ast *ast)
 {
     assembly_header();
     if(ast->type == AST_FUNC) {     
-        if(ast->nargs > 0)
-            alloc_funct_args(ast->args);
         emit_func(ast); 
+        alloc_funct_args(ast);
         for(int i = 0;i < EXPR_LEN; i++){
             if(ast->body[i])
                 emit_expr(ast->body[i]);
