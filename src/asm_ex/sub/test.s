@@ -9,9 +9,9 @@ _main:
 	mov   rbp, rsp
 	mov dword ptr [rbp - 4], edi
 	mov dword ptr [rbp - 8], esi
-	mov  dword ptr [rbp - 4], 2
-	mov  dword ptr [rbp - 8], 1
-	mov eax, dword ptr [rbp - 4]
-	add eax, dword ptr [rbp - 8]
+	mov  dword ptr [rbp - 12], 2
+	mov  dword ptr [rbp - 16], 1
+	mov eax, dword ptr [rbp - 12]
+	add eax, dword ptr [rbp - 16]
 	pop rbp
 	ret

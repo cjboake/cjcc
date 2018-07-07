@@ -36,6 +36,18 @@ without execution.*
 once *cjcc* is ready for more rigorous testing. The same follows
 for `make tests`.
 
+It will compile a simple function such as this one now:
+```
+main(int a, int b)
+{
+    int x = 2;
+    int y = 3;
+    return x + y;
+}
+```
+Right now it only supports variables of type `int`, and the function is obviously not a proper `main`, 
+but soon now that generalized functions compiler and pass values, I will be adding more types in.
+
 This will currently print the assembly output for the test program, *num*. As this process changes,
 I'll update the instructions to follow. 
 

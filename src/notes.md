@@ -390,3 +390,5 @@ After that I should probably handle return types for functions... but that would
 7/5/18
 ------
 - So first thing, I'm updating the parser to recognize var references that lack declaration/assignment. Once that is cleared up, I'm expected everything to work again and to be able to pass variables between functions. We will see.
+
+- Well, this is embarassing -- it turns out that I was being silly and just causing more problems for myself. The parser was working all along, but I misinterpreted some warnings, and then starting trying to "fix" it. This led me to making all kinds of changes that just made things all kinds of worse. So I just stashed the changes, and one by one copied them back in. Before I knew it, everything was working perfectly.

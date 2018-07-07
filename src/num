@@ -1,6 +1,6 @@
-main(int a, int b)
+main(int a, int b, int c)
 {
-    int x = 2; 
-    int y = 1;
+    int x = 7; 
+    int y = 5;
     return x + y;
 }
