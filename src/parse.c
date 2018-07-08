@@ -206,6 +206,8 @@ Ast *read_decl(FILE *fp, Token *t)
     int type = get_type(t);
     Ast *node = make_ast_var(make_decl(name, type), rd_expr2(fp)); 
     if(is_pointer(node->name)){
+        printf("setting pointer\n");
+        
         node->pointer = 1;
     }
     return node;
@@ -303,15 +305,15 @@ void ret_pos(Ast *node, Ast **fbod)
 void handle_pointer(Ast *a, Ast **fbod)
 {
     ensure_ptr(a->value); 
-    if(!find_var(a->value->name, fbod))        
-    error("Pointer does not reference valid var.");
-    a->value->vpos = get_vpos(a->value->name, fbod);  
+    if(!find_var(a->value->name, fbod)) 
+        error("Pointer does not reference valid var.");
 }
 
 Ast *make_fn(Ast *f, FILE *fp)
 {
     Ast **fbod = malloc(sizeof(Ast) * MAX_ARGS + 1);
     for(int i = 0; i < EXPR_LEN; i++){
+        int pos = i+1+f->nargs;
         Ast *a = rd_expr2(fp);       
         if(!a){
             f->body = fbod; 
@@ -319,12 +321,14 @@ Ast *make_fn(Ast *f, FILE *fp)
         }       
         if(a->pointer){
             handle_pointer(a, fbod);
-            continue;
+            a->value->vpos = pos;
+            a->value->ref_pos = get_vpos(a->value->name, fbod);  
+        }else{
+            int d = find_var(a->name, fbod);
+            if(a->type == AST_DECL && !d) a->vpos = pos; 
+            if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod);   
+            if(a->type == AST_RET) ret_pos(a->ret_val, fbod);
         }
-        int d = find_var(a->name, fbod);
-        if(a->type == AST_DECL && !d) a->vpos = i+1+f->nargs;
-        if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod);   
-        if(a->type == AST_RET) ret_pos(a->ret_val, fbod);
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }

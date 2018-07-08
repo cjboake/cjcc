@@ -72,10 +72,12 @@ void return_statement(Ast *ast)
 
 void alloc_var(Ast *var)
 {
-    if(var->value->type == AST_INT)
+    if(var->pointer == 1){
+        printf("lea rax, [rbp - %d]\n\t", var->value->ref_pos * 4);
+        printf("mov qword ptr [rbp - %d], rax\n", var->value->vpos * 4);
+    }else if(var->value->type == AST_INT){
         printf("mov  dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->value->ival);
-
-    if(var->type == '+' || var->type == '-'){
+    }else if(var->type == '+' || var->type == '-'){
         emit_op(var);
     }
 }
@@ -114,8 +116,9 @@ void compile(Ast *ast)
         emit_func(ast); 
         alloc_funct_args(ast);
         for(int i = 0;i < EXPR_LEN; i++){
-            if(ast->body[i])
+            if(ast->body[i]){
                 emit_expr(ast->body[i]);
+            }
             if(ast->body[i] == NULL) break;
         }
     }

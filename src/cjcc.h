@@ -7,7 +7,6 @@
 
 typedef struct Ast {
   int type;
-  int pointer;
   union {
     // Integer
     int ival;
@@ -17,6 +16,8 @@ typedef struct Ast {
     };
     // Variable
     struct {
+      int pointer;
+      int ref_pos;
       int ctype;
       char *name;
       int vpos;
