@@ -128,9 +128,9 @@ Token *read_token(FILE *fp)
         case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I':
         case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P':
         case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W':
-        case 'X': case 'Y': case 'Z': case '_':
+        case 'X': case 'Y': case 'Z': case '_': case '*': case '&':
             return read_ident(fp, c);
-        case '/': case '=': case '*': case '+': case '-': case '(': case ')':
+        case '/': case '=': case '#': case '+': case '-': case '(': case ')':
         case ',': case ';': case '{': case '}':
             return make_punc_tok(c);
         case EOF:

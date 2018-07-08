@@ -15,5 +15,6 @@ void expect(FILE * fp, int c);
 int check_for(char c, FILE *fp);
 void p(char *input);
 void node_check(Ast *node, int type);
+int ensure_ptr(Ast *node);
 
 #endif

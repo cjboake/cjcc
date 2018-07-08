@@ -392,3 +392,11 @@ After that I should probably handle return types for functions... but that would
 - So first thing, I'm updating the parser to recognize var references that lack declaration/assignment. Once that is cleared up, I'm expected everything to work again and to be able to pass variables between functions. We will see.
 
 - Well, this is embarassing -- it turns out that I was being silly and just causing more problems for myself. The parser was working all along, but I misinterpreted some warnings, and then starting trying to "fix" it. This led me to making all kinds of changes that just made things all kinds of worse. So I just stashed the changes, and one by one copied them back in. Before I knew it, everything was working perfectly.
+
+7/7/18
+------
+- Well I had an entry for today, but after a goold old git reset, I lost that. Essentially, I spent two hours trying to implement lexing and parsing for pointers before realizing I could just reuse the variable parsing and check that it starts with an asterisk. Oh well.
+
+7/8/18
+------
+- Yesterday was a bust, so I'm gonna try amd get pointers, as well as a few other things going today. I want to be able to start computing more meaningful programs.

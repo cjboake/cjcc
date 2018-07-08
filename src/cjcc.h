@@ -5,40 +5,9 @@
 #include <errno.h>
 #include <string.h>
 
-enum {
-    AST_PLUS,
-    AST_MINUS,
-    AST_INT,  // 2
-    AST_STR, 
-    AST_CHAR,
-    AST_FUNC,
-    AST_VAR, // 6
-    AST_DECL,
-    AST_RET,
-    AST_DECLN, // 9
-    AST_REF
-};
-
-enum {
-    TTYPE_IDENT,
-    TTYPE_PUNCT,
-    TTYPE_INT,
-    TTYPE_CHAR,
-    TTYPE_STRING
-};
-
-typedef struct {
-    int type;
-    union {
-        int ival;
-        char *sval;
-        char punct;
-        char c;
-    };
-} Token;
-
 typedef struct Ast {
   int type;
+  int pointer;
   union {
     // Integer
     int ival;
@@ -48,6 +17,7 @@ typedef struct Ast {
     };
     // Variable
     struct {
+      int ctype;
       char *name;
       int vpos;
       struct Ast *value;
@@ -76,6 +46,51 @@ typedef struct Ast {
     };
   };
 } Ast;
+
+typedef struct Type {
+    int type;
+    Ast *pointer;
+} Type;
+
+enum {
+    AST_PLUS,
+    AST_MINUS,
+    AST_INT,  // 2
+    AST_STR, 
+    AST_CHAR,
+    AST_FUNC,
+    AST_VAR, // 6
+    AST_DECL,
+    AST_RET,
+    AST_DECLN, // 9
+    AST_REF
+};
+
+enum {
+    TTYPE_IDENT,
+    TTYPE_PUNCT,
+    TTYPE_INT,
+    TTYPE_CHAR,
+    TTYPE_STRING
+};
+
+enum {
+    INT,
+    CHAR,
+    STRING,
+    ARRAY,
+    POINTER
+};
+
+typedef struct {
+    int type;
+    union {
+        int ival;
+        char *sval;
+        char punct;
+        char c;
+    };
+} Token;
 
 void run(char *argv[]);
 Ast *read_expr(FILE *p);

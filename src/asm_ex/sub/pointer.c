@@ -1,4 +1,5 @@
 int function()
 {
-   int arr[2]; 
+    int a = 1;
+    int *p = &a; 
 }

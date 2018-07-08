@@ -1,6 +1,5 @@
-main(int a, int b, int c)
+main()
 {
-    int x = 7; 
-    int y = 5;
-    return x + y;
+    int a = 1;
+    int *p = &a;
 }

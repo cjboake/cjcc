@@ -23,8 +23,15 @@ int fpeek(FILE *stream)
 
 void error(char *input)
 {
-    fprintf(stderr, "%s", input);
+    fprintf(stderr, "%s\n", input);
     exit(0);
+}
+
+void ensure_ptr(Ast *node)
+{
+    if(node->name[0] != '&')
+        error("Pointer value does not reference variable memory location.");
+    node->name++;
 }
 
 void expect(FILE * fp, int c)
