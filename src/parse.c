@@ -72,7 +72,6 @@ Ast *make_return(Ast *val)
 
 Ast *make_ast_var(Ast *variable, Ast *val)
 {
-    //printf("val name: %s\n", val->name);
     variable->value = val;
     return variable;
 }
@@ -207,7 +206,6 @@ Ast *read_decl(FILE *fp, Token *t)
     Ast *node = make_ast_var(make_decl(name, type), rd_expr2(fp)); 
     if(is_pointer(node->name)){
         printf("setting pointer\n");
-        
         node->pointer = 1;
     }
     return node;
@@ -311,6 +309,7 @@ void handle_pointer(Ast *a, Ast **fbod)
 
 Ast *make_fn(Ast *f, FILE *fp)
 {
+    int d;
     Ast **fbod = malloc(sizeof(Ast) * MAX_ARGS + 1);
     for(int i = 0; i < EXPR_LEN; i++){
         int pos = i+1+f->nargs;
@@ -319,15 +318,15 @@ Ast *make_fn(Ast *f, FILE *fp)
             f->body = fbod; 
             break; 
         }       
-        if(a->pointer){
+        if(a->pointer == 1){
             handle_pointer(a, fbod);
             a->value->vpos = pos;
             a->value->ref_pos = get_vpos(a->value->name, fbod);  
         }else{
-            int d = find_var(a->name, fbod);
-            if(a->type == AST_DECL && !d) a->vpos = pos; 
+            if(a->type != AST_RET) d = find_var(a->name, fbod);
+            if(a->type == AST_DECL && !d) a->vpos = pos;
             if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod);   
-            if(a->type == AST_RET) ret_pos(a->ret_val, fbod);
+            if(a->type == AST_RET) ret_pos(a->ret_val, fbod); 
         }
         fbod[i] = a;
         //if(check_for('}', fp)) break;

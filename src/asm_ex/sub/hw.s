@@ -3,19 +3,17 @@
 	.intel_syntax noprefix
 	.globl	_main                   ## -- Begin function main
 	.p2align	4, 0x90
+
 _main:                                  ## @main
-## BB#0:
+	
 	
 	push	rbp
-	mov		rbp, rsp
+	mov	rbp, rsp
 	
-	lea		rax, [rbp - 4]
-	mov		dword ptr [rbp - 4], 1
-	mov		qword ptr [rbp - 16], rax
-	mov		rax, qword ptr [rbp - 16]
+	lea	rdi, [rip + L_.str]
+	call	_printf
 	
-	pop		rbp
+	pop	rbp
 	ret
-                                        ## -- End function
 
-.subsections_via_symbols
+	L_.str:		.asciz	"hello world\n"

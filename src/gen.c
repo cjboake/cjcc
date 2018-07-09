@@ -28,7 +28,7 @@ int is_var(Ast *ast)
 void emit_intexpr(Ast *ast)
 {
     if(ast->type == AST_INT)
-        printf("\tmov rax, %d\n", ast->ival);
+        printf("\tmov   rax, %d\n", ast->ival);
 }
 
 // original emit_op, may not last
@@ -40,9 +40,9 @@ void emit_op(Ast *ast)
     //emit_intexpr(ast->left);  for non-vars, handle later
    
     if(is_var(ast->left))
-        printf("mov eax, dword ptr [rbp - %d]\n\t", ast->left->vpos * 4);     
+        printf("mov     eax, dword ptr [rbp - %d]\n\t", ast->left->vpos * 4);     
     if(is_var(ast->right))
-        printf("%s eax, dword ptr [rbp - %d]\n\t", op, ast->right->vpos * 4);
+        printf("%s      eax, dword ptr [rbp - %d]\n\t", op, ast->right->vpos * 4);
 
     //if(ast->right->type == AST_INT)
      //   printf("\tmov rbx, %d\n\t", ast->right->ival);
@@ -54,13 +54,13 @@ void emit_op(Ast *ast)
 void alloc_funct_args(Ast *a)
 {
     for(int i = 1;i <= a->nargs;i++){
-        printf("mov dword ptr [rbp - %d], %s\n\t", i*4, REGS[i-1]);
+        printf("mov     dword ptr [rbp - %d], %s\n\t", i*4, REGS[i-1]);
     }
 }
 
 void print_ret()
 {
-    printf("pop rbp\n\t");
+    printf("pop     rbp\n\t");
     printf("ret\n");
 }
 
@@ -73,10 +73,10 @@ void return_statement(Ast *ast)
 void alloc_var(Ast *var)
 {
     if(var->pointer == 1){
-        printf("lea rax, [rbp - %d]\n\t", var->value->ref_pos * 4);
-        printf("mov qword ptr [rbp - %d], rax\n", var->value->vpos * 4);
+        printf("lea     rax, [rbp - %d]\n\t", var->value->ref_pos * 4);
+        printf("mov     qword ptr [rbp - %d], rax\n\t", var->value->vpos * 4);
     }else if(var->value->type == AST_INT){
-        printf("mov  dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->value->ival);
+        printf("mov     dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->value->ival);
     }else if(var->type == '+' || var->type == '-'){
         emit_op(var);
     }
@@ -105,8 +105,8 @@ void emit_func(Ast *ast)
     printf(".globl  _%s\n", ast->fname);
     printf(".p2align    4, 0x90\n\n");
     printf("_%s:\n", ast->fname);
-    printf("\tpush  rbp\n\t");
-    printf("mov   rbp, rsp\n\t");
+    printf("\tpush    rbp\n\t");
+    printf("mov     rbp, rsp\n\t");
 }
 
 void compile(Ast *ast)

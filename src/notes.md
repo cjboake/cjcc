@@ -400,3 +400,11 @@ After that I should probably handle return types for functions... but that would
 7/8/18
 ------
 - Yesterday was a bust, so I'm gonna try amd get pointers, as well as a few other things going today. I want to be able to start computing more meaningful programs.
+
+- That was frustrating, but I finally got pointers implemented. It wasn't frustrating so much becaue it was a technical challenge-- I just kept making things much harder on myself by trying to re-implement lower level functions such as parsing. 
+- Ultimately, I just treat them as a normal variable, check to see if they are a pointer, and ensure that they reference a valid variable. 
+- In the code generation, you look at the referenced variable, and then load the memory location that said variable exists in. Not super hard stuff, but I was just wasn't being smart about it.
+
+7/9/18
+------
+- The pointer implementation went well once I pulled my head out of the ground. I'm thinking I might go ahead and handle multiplication/division or add some new types for the next steps. I'm trying to think of what would bring the most utility to the compiler.

@@ -1,9 +1,5 @@
-int function(int a, int b, int c)
+void function()
 {
-    return a + b;
-}
-
-int caller()
-{
-    return function(1, 2, 3);
+    int a = 0;
+    int b = 1;
 }

@@ -1,5 +1,6 @@
 main(int a, int b)
 {
-    int a = 1;
-    int *p = &a;
+    int c = 1;
+    int d = 3;
+    return c + d;
 }

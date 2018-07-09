@@ -5,32 +5,12 @@
 	.p2align	4, 0x90
 
 _function:                              ## @function
-	
 	push	rbp
 	mov	rbp, rsp
-	
-	mov	dword ptr [rbp - 4], edi
-	mov	dword ptr [rbp - 8], esi
-	mov	dword ptr [rbp - 12], edx
-	
-	mov	edx, dword ptr [rbp - 4]
-	add	edx, dword ptr [rbp - 8]
-	
-	mov	eax, edx
-	
+	mov	dword ptr [rbp - 4], 0
+	mov	dword ptr [rbp - 8], 1
 	pop	rbp
 	ret
                                         ## -- End function
-_caller:                                ## @caller
-	
-	push	rbp
-	mov	rbp, rsp
-	
-	mov	edi, 1
-	mov	esi, 2
-	mov	edx, 3
-	
-	call	_function
-	
-	pop	rbp
-	ret
+
+.subsections_via_symbols
