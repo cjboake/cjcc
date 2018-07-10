@@ -3,19 +3,19 @@
 	.intel_syntax noprefix
 	.globl	_main                   ## -- Begin function main
 	.p2align	4, 0x90
+
 _main:                                  ## @main
-## BB#0:
-	
 	push	rbp
-	mov		rbp, rsp
+	mov	rbp, rsp
 	
-	lea		rax, [rbp - 4]
-	mov		dword ptr [rbp - 4], 1
-	mov		qword ptr [rbp - 16], rax
-	mov		rax, qword ptr [rbp - 16]
+	mov	eax, 5
 	
-	pop		rbp
+	pop	rbp
 	ret
                                         ## -- End function
+	.section	__DATA,__data
+	.globl	_n                      ## @n
+	.p2align	2
 
-.subsections_via_symbols
+_n:
+	.long	6                       ## 0x6

@@ -205,7 +205,6 @@ Ast *read_decl(FILE *fp, Token *t)
     int type = get_type(t);
     Ast *node = make_ast_var(make_decl(name, type), rd_expr2(fp)); 
     if(is_pointer(node->name)){
-        printf("setting pointer\n");
         node->pointer = 1;
     }
     return node;
@@ -331,6 +330,9 @@ Ast *make_fn(Ast *f, FILE *fp)
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }
+    Token *t = read_token(fp);
+    if(t->punct == '}') printf("WTF\n");
+    //unget_token(fp, t); 
     return f;
 }
 
@@ -344,12 +346,11 @@ Ast *make_arith_expr(Ast *left, Ast *op, FILE *fp)
 
 Ast *rd_expr2(FILE *fp)
 {
-    //skip_space(fp);
+    skip_space(fp);
     Token *tok = read_token(fp);
-    if(tok == NULL){ 
-        return NULL;
-    }
-    if(tok->type == TTYPE_PUNCT || tok == NULL){ 
+    skip_space(fp);
+    if(tok == NULL) return NULL;
+    if(tok->type == TTYPE_PUNCT){ 
         unget_token(fp, tok);
         return NULL;
     }
@@ -401,7 +402,9 @@ Ast *rd_expr2(FILE *fp)
     if(d == ';'){
         return ast;
     }
-    if(d == EOF) return NULL;
+    if(d == EOF){ 
+        return NULL;
+    }
     Ast *right = rd_expr2(fp);
     Ast *ret = make_ast_node(ast, right, d);
     return ret;

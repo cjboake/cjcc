@@ -105,12 +105,19 @@ Token *make_punc_tok(int c)
     return tok;
 }
 
+Token *debugger()
+{
+    printf("In the EOF Function\n");
+    return NULL; 
+}
+
 Token *read_token(FILE *fp)
 {
     skip_space(fp);
     int c = fgetc(fp);
-    
+   
     if(c == EOF){
+        printf("GOT AN EOF\n");
         return NULL;//error("Unexpected EOF\n");
     }
     switch(c) {
@@ -134,7 +141,7 @@ Token *read_token(FILE *fp)
         case ',': case ';': case '{': case '}':
             return make_punc_tok(c);
         case EOF:
-            return NULL;
+            return debugger();
         default:
             printf("Unexpected Character %d", c);
     }

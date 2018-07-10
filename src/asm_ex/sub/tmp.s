@@ -9,11 +9,8 @@ _main:                                  ## @main
 	push	rbp
 	mov	rbp, rsp
 	
-	mov  dword ptr [rbp - 4], 2
-	mov  dword ptr [rbp - 8], 1
-	
-	mov eax, dword ptr [rbp - 4]
-	add eax, dword ptr [rbp - 8]	
-	
+	mov	eax, 1
+	mov	dword ptr [rbp - 4], 0
+	mov	dword ptr [rbp - 8], 	
 	pop	rbp
 	ret

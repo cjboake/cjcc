@@ -1,6 +1,7 @@
-int *main()
+int n = 6;
+int main()
 {
-    int a = 1;
-    int *p = &a; 
-    return p;
+    int a = 2;
+    int b = 3;
+    return a + b;
 }
