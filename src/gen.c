@@ -10,7 +10,7 @@ void emit_expr(Ast *ast);
 void return_statement(Ast *ast);
 void print_ret();
 
-char *REGS[] = {"edi", "esi", "edx", "ecx"};
+char *REGS[] = {"edi", "esi", "edx", "ecx", "r8", "r9"};
 
 void assembly_header()
 {
