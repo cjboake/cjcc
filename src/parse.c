@@ -76,14 +76,15 @@ Ast *make_ast_var(Ast *variable, Ast *val)
     return variable;
 }
 
-Ast *make_ast_func(char *name, int n, Ast **a)
+Ast *make_ast_func(char *name, int n, Ast **a, int rtype)
 {
     Ast *ast = malloc(sizeof(Ast));
     ast->type = AST_FUNC;
+    ast->return_type = rtype;
     ast->fname = name;
     ast->nargs = n;
     ast->args = a;
-    
+   
     return ast;
 }
 
@@ -132,13 +133,13 @@ int priority(char op)
     }
 }
 
-Ast *read_func_args(FILE *fp, char *buf)
+Ast *read_func_args(FILE *fp, char *buf, int type)
 {
     int i = 0, nargs = 0;
     Ast **args = malloc(sizeof(Ast) * MAX_ARGS + 1);
     for(;i < MAX_ARGS; i++){
         if(i > 6) error("Function exceeds max args\n"); 
-        skip_space(fp); 
+        //skip_space(fp); 
         Token *tok = read_token(fp);
         if(tok->punct == ')'){
             expect(fp, '{');
@@ -155,7 +156,7 @@ Ast *read_func_args(FILE *fp, char *buf)
         }
     }
     Ast *a = malloc(sizeof(Ast));
-    return make_ast_func(buf, nargs, args);
+    return make_ast_func(buf, nargs, args, type);
 }
 
 int is_type_keyword(Token *tok)
@@ -199,10 +200,14 @@ int is_pointer(char *name)
 
 Ast *read_decl(FILE *fp, Token *t)
 {
-    fseek(fp, -1L, SEEK_CUR);
+    //fseek(fp, -1L, SEEK_CUR);
+    skip_space(fp);
     Token *tok = read_token(fp);
+    if(tok == NULL) p("tok was null\n");
     char *name = tok->sval;
     int type = get_type(t);
+    
+    if(check_for('(', fp)) return read_func_args(fp, name, type); 
     Ast *node = make_ast_var(make_decl(name, type), rd_expr2(fp)); 
     if(is_pointer(node->name)){
         node->pointer = 1;
@@ -236,10 +241,12 @@ Ast *rd_statement(FILE *fp, Token *tok)
 Ast *func_or_ident(FILE *fp, Token *tok)
 {
     char *name = tok->sval;
-    skip_space(fp);
-    if(check_for('(', fp)){
-        return read_func_args(fp, name); 
-    } 
+    //skip_space(fp);
+    //if(check_for('(', fp)){
+    //    int type = get_type(tok);
+    //    printf("type: %d, name: %s\n", type, name);
+    //    return read_func_args(fp, name, type); 
+    //} 
     return is_type_keyword(tok) ? read_decl(fp, tok) : rd_statement(fp, tok); 
 }
 
@@ -330,9 +337,6 @@ Ast *make_fn(Ast *f, FILE *fp)
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }
-    Token *t = read_token(fp);
-    if(t->punct == '}') printf("WTF\n");
-    //unget_token(fp, t); 
     return f;
 }
 

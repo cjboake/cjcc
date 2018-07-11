@@ -1,14 +1,8 @@
-main(int a, int b)
+int main(int a, int b)
 {
     int c = 1;
     int d = 3;
     int a = 6;
     int *p = &a;
     return c + d;
-}function(int x)
-{
-    int a = 1;
-    int *i = &a; 
-    int b = 2;
-    return a;
 }

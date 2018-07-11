@@ -408,3 +408,7 @@ After that I should probably handle return types for functions... but that would
 7/9/18
 ------
 - The pointer implementation went well once I pulled my head out of the ground. I'm thinking I might go ahead and handle multiplication/division or add some new types for the next steps. I'm trying to think of what would bring the most utility to the compiler.
+
+7/10/18
+-------
+- Not having the greatest day today... Attempted to add type checking to functions. It seems to have broken the whole thing. I think it's because it's not setting the name somewhere correctly.
