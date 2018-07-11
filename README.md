@@ -38,15 +38,17 @@ for `make tests`.
 
 It will compile a simple function such as this one now:
 ```
-main(int a, int b)
+int main(int a, int b)
 {
     int x = 2;
     int y = 3;
+    int a = 1;
+    int *p = &a;
     return x + y;
 }
 ```
-Right now it only supports variables of type `int`, and the function is obviously not a proper `main`, 
-but soon now that generalized functions compiler and pass values, I will be adding more types in.
+Right now it only supports variables of type `int` and `*pointer`. The function is obviously not a proper `main`,
+but all that is left to do for that is add the char[] type.
 
 This will currently print the assembly output for the test program, *num*. As this process changes,
 I'll update the instructions to follow. 
