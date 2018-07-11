@@ -19,33 +19,31 @@ Listnode *make_node(void *n)
 }
 
 void list_append(List *list, void *elem) {
-  Listnode *node = make_node(elem);
-  if (!list->head)
-    list->head = node;
-  else
-    list->tail->next = node;
-  list->tail = node;
-  list->len++;
+    Listnode *node = make_node(elem);
+    if (!list->head) list->head = node; 
+    else list->tail->next = node;
+    list->tail = node;
+    list->len++;
 }
 
 int list_len(List *list) {
-  return list->len;
+    return list->len;
 }
 
 Iter *list_iter(List *list) {
-  Iter *r = malloc(sizeof(Iter));
-  r->ptr = list->head;
-  return r;
+    Iter *r = malloc(sizeof(Iter));
+    r->ptr = list->head;
+    return r;
 }
 
 void *iter_next(Iter *iter) {
-  if (!iter->ptr)
-    return NULL;
-  void *r = iter->ptr->elem;
-  iter->ptr = iter->ptr->next;
-  return r;
+    if (!iter->ptr)
+        return NULL;
+    void *r = iter->ptr->elem;
+    iter->ptr = iter->ptr->next;
+    return r;
 }
 
 bool iter_end(Iter *iter) {
-  return !iter->ptr;
+    return !iter->ptr;
 }

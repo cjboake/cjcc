@@ -6,6 +6,7 @@
 
 #define EXPR_LEN 100
 
+void emit_func(Ast *ast);
 void emit_expr(Ast *ast);
 void return_statement(Ast *ast);
 void print_ret();
@@ -84,6 +85,16 @@ void alloc_var(Ast *var)
 
 void emit_expr(Ast *ast)
 {
+    if(ast->type == AST_FUNC) {     
+        emit_func(ast); 
+        alloc_funct_args(ast);
+        for(int i = 0;i < EXPR_LEN; i++){
+            if(ast->body[i]){
+                emit_expr(ast->body[i]);
+            }
+            if(ast->body[i] == NULL) break;
+        }
+    }
     if(ast->type == AST_PLUS || ast->type == AST_MINUS){
         emit_op(ast);          
     }
@@ -109,17 +120,11 @@ void emit_func(Ast *ast)
     printf("mov     rbp, rsp\n\t");
 }
 
-void compile(Ast *ast)
+void compile(List *block)
 {
     assembly_header();
-    if(ast->type == AST_FUNC) {     
-        emit_func(ast); 
-        alloc_funct_args(ast);
-        for(int i = 0;i < EXPR_LEN; i++){
-            if(ast->body[i]){
-                emit_expr(ast->body[i]);
-            }
-            if(ast->body[i] == NULL) break;
-        }
-    }
+    for (Iter *i = list_iter(block); !iter_end(i);)
+        emit_expr(iter_next(i));
 }
+
+

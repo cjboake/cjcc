@@ -13,7 +13,7 @@ void emit_op(Ast *ast);
 void alloc_funct_args(Ast **a);
 void alloc_var(Ast *var);
 void emit_func(Ast *ast);
-void compile(Ast *ast);
+void compile(List *block);
 void emit_expr(Ast *ast, int i);
 
 #endif /* LEX.H */

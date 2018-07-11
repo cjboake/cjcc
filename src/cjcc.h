@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include "list.h"
 
 typedef struct Ast {
   int type;
