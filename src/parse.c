@@ -155,7 +155,6 @@ Ast *read_func_args(FILE *fp, char *buf, int type)
             }
         }
     }
-    Ast *a = malloc(sizeof(Ast));
     return make_ast_func(buf, nargs, args, type);
 }
 
@@ -240,13 +239,6 @@ Ast *rd_statement(FILE *fp, Token *tok)
 
 Ast *func_or_ident(FILE *fp, Token *tok)
 {
-    char *name = tok->sval;
-    //skip_space(fp);
-    //if(check_for('(', fp)){
-    //    int type = get_type(tok);
-    //    printf("type: %d, name: %s\n", type, name);
-    //    return read_func_args(fp, name, type); 
-    //} 
     return is_type_keyword(tok) ? read_decl(fp, tok) : rd_statement(fp, tok); 
 }
 
