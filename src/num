@@ -6,3 +6,23 @@ int main(int a, int b)
     int *p = &a;
     return c + d;
 }
+
+int test(int a, int b)
+{
+    int c = 1;
+    int d = 3;
+    return c + d;
+}
+
+int test(int b)
+{
+    int c = 2;
+    int d = 8;
+    return d - c;
+}
+
+int myfunction(int a, int b)
+{
+    int c = 1;
+    return c;
+}

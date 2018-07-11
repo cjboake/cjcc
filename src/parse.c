@@ -329,6 +329,7 @@ Ast *make_fn(Ast *f, FILE *fp)
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }
+    expect(fp, '}');
     return f;
 }
 
