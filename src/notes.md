@@ -418,3 +418,8 @@ for (Iter *i = list_iter(locals); !iter_end(i);) {
     if (!strcmp(name, v->lname))
       return v;
 
+7/13/18
+-------
+- Not sure what happened to logging the last few days lol.
+- But I finally got calls on function references to work! I still need to move the parameters to their apprioriate registers, but the assembly produces call _function_, which was the hard part. Parsing that was a mother.
+- *note: it isn't recognizing functions declared above, probably just an issue adding the function name to the list.
