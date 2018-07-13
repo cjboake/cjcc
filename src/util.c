@@ -17,6 +17,7 @@ int fpeek(FILE *stream)
 {
     int c;
     c = fgetc(stream);
+    printf("fpeek: %c\n", c);
     ungetc(c, stream);
     return c;
 }

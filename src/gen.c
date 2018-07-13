@@ -101,6 +101,8 @@ void emit_expr(Ast *ast)
     if(ast->type == AST_DECL){
         alloc_var(ast);
     }
+    if(ast->type == AST_REF) 
+        printf("call _%s\n\t", ast->fname);
     if(ast->type == AST_VAR){
         printf("We have a var!\n");
     }

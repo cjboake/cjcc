@@ -28,6 +28,6 @@ bool iter_end(Iter *iter);
 
 
 #define EMPTY_LIST                                          \
-    (&(LIST){ .len = 0; .head = NULL; .tail = NULL}) 
+    (&(List){ .len = 0, .head = NULL, .tail = NULL}) 
 
 #endif

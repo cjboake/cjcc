@@ -4,9 +4,12 @@
 #include "util.h"
 #include "parse.h"
 #include "lex.h"
+#include "list.h"
 
 #define MAX_ARGS 6
 #define EXPR_LEN 100
+
+List *FUNCTIONS = EMPTY_LIST;
 
 Ast *make_ast_operator(int type)
 {
@@ -78,6 +81,7 @@ Ast *make_ast_var(Ast *variable, Ast *val)
 
 Ast *make_ast_func(char *name, int n, Ast **a, int rtype)
 {
+    list_append(FUNCTIONS, name); 
     Ast *ast = malloc(sizeof(Ast));
     ast->type = AST_FUNC;
     ast->return_type = rtype;
@@ -133,6 +137,16 @@ int priority(char op)
     }
 }
 
+Ast *make_ast_func_ref(char *name, Ast **arg)
+{
+    p("make_ast_func_ref");
+    Ast *a = malloc(sizeof(Ast));
+    a->type = AST_REF;
+    a->fname = name;
+    a->args = arg;
+    return a;
+}
+
 Ast *read_func_args(FILE *fp, char *buf, int type)
 {
     int i = 0, nargs = 0;
@@ -156,6 +170,20 @@ Ast *read_func_args(FILE *fp, char *buf, int type)
         }
     }
     return make_ast_func(buf, nargs, args, type);
+}
+
+Ast *read_ref_args(FILE *fp, char *name)
+{
+    p("read_ref_args");
+    Ast **args = malloc(sizeof(Ast) * MAX_ARGS + 1);
+    int i = 0;
+    for(;i < MAX_ARGS; i++){
+        Token *tok = read_token(fp);
+        if(tok->punct == ')' || tok->punct == ';') break;
+        Ast *a = read_primitive(fp, tok);
+        args[i] = a;
+    }
+    return make_ast_func_ref(name, args);
 }
 
 int is_type_keyword(Token *tok)
@@ -225,13 +253,32 @@ Ast *read_var(FILE *fp, Token *tok)
     return make_ast_var(make_var(name), rd_expr2(fp)); 
 }
 
+int existing_func(char *name)
+{
+    p("existing_func");
+    for (Iter *i = list_iter(FUNCTIONS); !iter_end(i);) {
+        char *func = iter_next(i); 
+        if(!strcmp(name, func)){ 
+            p("func exists");
+            return 1;
+        }
+    }
+    p("func did not exist");
+    return 0;
+}
+
 Ast *rd_statement(FILE *fp, Token *tok)
 {
+    Ast *a = malloc(sizeof(Ast)); 
     if(is_token_ident(tok, "return")){ 
         fseek(fp, -1L, SEEK_CUR);
         Ast *r = rd_expr2(fp);
         Ast *mr = make_return(r);
         return mr;
+    } else if(check_for('(', fp) && existing_func(tok->sval)){
+        p("was a ( and func existed.");
+        char *name = tok->sval;
+        return read_ref_args(fp, name);
     } else { 
         return read_var(fp, tok);
     }
@@ -358,6 +405,9 @@ Ast *rd_expr2(FILE *fp)
         return ast;
     }
     if(ast->type == AST_RET){
+        return ast; 
+    }
+    if(ast->type == AST_REF){
         return ast; 
     }
     if(ast->type == AST_PLUS){

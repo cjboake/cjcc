@@ -412,3 +412,9 @@ After that I should probably handle return types for functions... but that would
 7/10/18
 -------
 - Not having the greatest day today... Attempted to add type checking to functions. It seems to have broken the whole thing. I think it's because it's not setting the name somewhere correctly.
+
+for (Iter *i = list_iter(locals); !iter_end(i);) {
+    Ast *v = iter_next(i);
+    if (!strcmp(name, v->lname))
+      return v;
+
