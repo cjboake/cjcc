@@ -1,8 +1,10 @@
+int test(int a, int b)
+{
+    return a + b;    
+}
 int main(int a, int b)
 {
     int c = 1;
     int d = 3;
-    main(3, 2);
-    return c + d;
+    test(c, d);
 }
-

@@ -139,7 +139,6 @@ int priority(char op)
 
 Ast *make_ast_func_ref(char *name, Ast **arg)
 {
-    p("make_ast_func_ref");
     Ast *a = malloc(sizeof(Ast));
     a->type = AST_REF;
     a->fname = name;
@@ -174,7 +173,6 @@ Ast *read_func_args(FILE *fp, char *buf, int type)
 
 Ast *read_ref_args(FILE *fp, char *name)
 {
-    p("read_ref_args");
     Ast **args = malloc(sizeof(Ast) * MAX_ARGS + 1);
     int i = 0;
     for(;i < MAX_ARGS; i++){
@@ -255,11 +253,9 @@ Ast *read_var(FILE *fp, Token *tok)
 
 int existing_func(char *name)
 {
-    p("existing_func");
     for (Iter *i = list_iter(FUNCTIONS); !iter_end(i);) {
         char *func = iter_next(i); 
         if(!strcmp(name, func)){ 
-            p("func exists");
             return 1;
         }
     }
@@ -276,7 +272,6 @@ Ast *rd_statement(FILE *fp, Token *tok)
         Ast *mr = make_return(r);
         return mr;
     } else if(check_for('(', fp) && existing_func(tok->sval)){
-        p("was a ( and func existed.");
         char *name = tok->sval;
         return read_ref_args(fp, name);
     } else { 
@@ -306,23 +301,36 @@ Ast *read_primitive(FILE *fp, Token *tok)
     return NULL;
 }
 
-int find_var(char *name, Ast **fbod)
+int find_var(char *name, Ast **fbod, Ast **args)
 {
+    int a = 0;
     for(int i = 0; i < 100; i++){
         if(!fbod[i]) break;
         if(!strcmp(name, fbod[i]->name)){
             return 1;
         }
     }
+    for(int i = 0; i < 100; i++){
+        if(!args[i]) break;
+        if(!strcmp(name, args[i]->name)){
+            return 1;
+        }
+    }
     return 0; 
 }
 
-int get_vpos(char *name, Ast **fbod)
+int get_vpos(char *name, Ast **fbod, Ast **args)
 {
     for(int i = 0; i < 100; i++){
         if(!fbod[i]) break;
         if(!strcmp(name, fbod[i]->name)){
             return fbod[i]->vpos;
+        }
+    }
+    for(int i = 0; i < 100; i++){
+        if(!args[i]) break;
+        if(!strcmp(name, args[i]->name)){
+            return args[i]->vpos;
         }
     }
     error("Could not find previously declared var");
@@ -335,20 +343,21 @@ int is_operator(Ast *node){
     return 0;
 }
 
-void ret_pos(Ast *node, Ast **fbod)
+void ret_pos(Ast *node, Ast **fbod, Ast **args)
 {
     if(is_operator(node)){
-        if(node->left != NULL) ret_pos(node->left, fbod);
-        if(node->right != NULL) ret_pos(node->right, fbod);
+        if(node->left != NULL) ret_pos(node->left, fbod, args);
+        if(node->right != NULL) ret_pos(node->right, fbod, args);
     }
-    if(node->type == AST_VAR)
-        node->vpos = get_vpos(node->name, fbod);
+    if(node->type == AST_VAR){
+        node->vpos = get_vpos(node->name, fbod, args);
+    }
 }
 
-void handle_pointer(Ast *a, Ast **fbod)
+void handle_pointer(Ast *a, Ast **fbod, Ast **args)
 {
     ensure_ptr(a->value); 
-    if(!find_var(a->value->name, fbod)) 
+    if(!find_var(a->value->name, fbod, args)) 
         error("Pointer does not reference valid var.");
 }
 
@@ -364,14 +373,15 @@ Ast *make_fn(Ast *f, FILE *fp)
             break; 
         }       
         if(a->pointer == 1){
-            handle_pointer(a, fbod);
+            handle_pointer(a, fbod, f->args);
             a->value->vpos = pos;
-            a->value->ref_pos = get_vpos(a->value->name, fbod);  
+            a->value->ref_pos = get_vpos(a->value->name, fbod, f->args);  
         }else{
-            if(a->type != AST_RET) d = find_var(a->name, fbod);
+            if(a->type != AST_RET) d = find_var(a->name, fbod, f->args);
+            if (a->type == AST_REF) expect(fp, ';'); 
             if(a->type == AST_DECL && !d) a->vpos = pos;
-            if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod);   
-            if(a->type == AST_RET) ret_pos(a->ret_val, fbod); 
+            if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod, f->args);   
+            if (a->type == AST_RET) ret_pos(a->ret_val, fbod, f->args); 
         }
         fbod[i] = a;
         //if(check_for('}', fp)) break;

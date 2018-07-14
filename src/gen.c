@@ -62,7 +62,7 @@ void alloc_funct_args(Ast *a)
 void print_ret()
 {
     printf("pop     rbp\n\t");
-    printf("ret\n");
+    printf("ret\n\n");
 }
 
 void return_statement(Ast *ast)
@@ -116,7 +116,7 @@ void emit_expr(Ast *ast)
 void emit_func(Ast *ast)
 {
     printf(".globl  _%s\n", ast->fname);
-    printf(".p2align    4, 0x90\n\n");
+    printf(".p2align    4, 0x90\n");
     printf("_%s:\n", ast->fname);
     printf("\tpush    rbp\n\t");
     printf("mov     rbp, rsp\n\t");

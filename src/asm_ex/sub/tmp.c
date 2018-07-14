@@ -1,7 +1,5 @@
-int main()
+int main(int argc, char *argv[])
 {
-    if(1 == 1){
-        int a = 1;
-    }
+    int *p = &argc;
     return 1;
 }
