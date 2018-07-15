@@ -16,7 +16,6 @@ _test:                                  ## @test
 	add	esi, dword ptr [rbp - 8]
 	
 	mov	eax, esi
-	
 	pop	rbp
 	ret
                                         ## -- End function
@@ -28,16 +27,13 @@ _main:                                  ## @main
 	push	rbp
 	mov	rbp, rsp
 	
-	mov	dword ptr [rbp - 4], 0
-	mov	dword ptr [rbp - 8], 2
+	mov	dword ptr [rbp - 4], 2
+	mov	dword ptr [rbp - 8], 3
 	
-	mov	dword ptr [rbp - 12], 3
-	
-	mov	edi, dword ptr [rbp - 12]
+	mov	edi, dword ptr [rbp - 4]
 	mov	esi, dword ptr [rbp - 8]
 	
 	call	_test
-	
 	pop	rbp
 	ret
                                         ## -- End function

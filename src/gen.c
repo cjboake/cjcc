@@ -46,14 +46,14 @@ void emit_op(Ast *ast)
    
     if(is_var(ast->left))
         printf("mov     eax, dword ptr [rbp - %d]\n\t", ast->left->vpos * 4);     
-    if(is_var(ast->right))
-        printf("%s      eax, dword ptr [rbp - %d]\n\t", op, ast->right->vpos * 4);
-
-//if(ast->right->type == AST_INT)
-     //   printf("\tmov rbx, %d\n\t", ast->right->ival);
+    if(is_var(ast->right)){
+        printf("%s     eax, dword ptr [rbp - %d]\n\t", op, ast->right->vpos * 4);
+    }
+  //if(ast->right->type == AST_INT)
+     // printf("\tmov rbx, %d\n\t", ast->right->ival);
     
-    //printf("%s rax, rbx\n\t", op);
-    //printf("mov rbi, 0\n\t");
+  //printf("%s rax, rbx\n\t", op);
+  //printf("mov rbi, 0\n\t");
 }
 
 void alloc_funct_args(Ast *a)
@@ -99,7 +99,7 @@ void mov_args(Ast **args)
         for (Iter *i = list_iter(VARS); !iter_end(i);) {
             Tuple *v = iter_next(i); 
             if(!strcmp(args[u]->name, v->name)){ 
-                printf("mov %s, dword ptr [rbp - %d]\n\t", REGS[u], v->pos);;
+                printf("mov     %s, dword ptr [rbp - %d]\n\t", REGS[u], v->pos);;
                 break;
             }
         }

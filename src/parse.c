@@ -161,6 +161,7 @@ Ast *read_func_args(FILE *fp, char *buf, int type)
             Ast *a = read_primitive(fp, tok);
             args[i] = a;
             nargs++;
+            args[i]->vpos = nargs;
             if(check_for(',', fp)) continue;
             if(check_for(')', fp)){
                 expect(fp, '{');

@@ -7,6 +7,6 @@ int main()
 {
     int c = 2;
     int d = 3;
-    return test(d, c);
+    return test(c, d);
 }
 
