@@ -49,6 +49,11 @@ typedef struct Ast {
   };
 } Ast;
 
+typedef struct Tuple {
+    char *name;
+    int pos;
+} Tuple;
+
 typedef struct Type {
     int type;
     Ast *pointer;

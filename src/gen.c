@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "cjcc.h"
+#include "util.h"
+#include "list.h"
 
 #define EXPR_LEN 100
 
@@ -12,6 +14,8 @@ void return_statement(Ast *ast);
 void print_ret();
 
 char *REGS[] = {"edi", "esi", "edx", "ecx", "r8", "r9"};
+
+List *VARS = EMPTY_LIST;
 
 void assembly_header()
 {
@@ -45,7 +49,7 @@ void emit_op(Ast *ast)
     if(is_var(ast->right))
         printf("%s      eax, dword ptr [rbp - %d]\n\t", op, ast->right->vpos * 4);
 
-    //if(ast->right->type == AST_INT)
+//if(ast->right->type == AST_INT)
      //   printf("\tmov rbx, %d\n\t", ast->right->ival);
     
     //printf("%s rax, rbx\n\t", op);
@@ -73,13 +77,32 @@ void return_statement(Ast *ast)
 
 void alloc_var(Ast *var)
 {
+    Tuple *variable = malloc(sizeof(Type));
+    variable->name = var->name;
     if(var->pointer == 1){
+        variable->pos = var->value->vpos * 4;
         printf("lea     rax, [rbp - %d]\n\t", var->value->ref_pos * 4);
         printf("mov     qword ptr [rbp - %d], rax\n\t", var->value->vpos * 4);
     }else if(var->value->type == AST_INT){
+        variable->pos = var->vpos * 4;
         printf("mov     dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->value->ival);
     }else if(var->type == '+' || var->type == '-'){
         emit_op(var);
+    }
+    list_append(VARS, variable);
+}
+
+void mov_args(Ast **args)
+{
+    for(int u = 0; u < 7; u++){
+        if(!args[u]) break;
+        for (Iter *i = list_iter(VARS); !iter_end(i);) {
+            Tuple *v = iter_next(i); 
+            if(!strcmp(args[u]->name, v->name)){ 
+                printf("mov %s, dword ptr [rbp - %d]\n\t", REGS[u], v->pos);;
+                break;
+            }
+        }
     }
 }
 
@@ -101,14 +124,14 @@ void emit_expr(Ast *ast)
     if(ast->type == AST_DECL){
         alloc_var(ast);
     }
-    if(ast->type == AST_REF) 
+    if(ast->type == AST_REF){ 
+        mov_args(ast->args); 
         printf("call \t_%s\n\t", ast->fname);
+    }
     if(ast->type == AST_VAR){
         printf("We have a var!\n");
     }
-    // eventually pass eax reg here
     if(ast->type == AST_RET){
-        //printf("We have a return! ret_val->type: %d\n", ast->ret_val->type);
         return_statement(ast->ret_val);
     }
 }

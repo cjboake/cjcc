@@ -427,3 +427,5 @@ for (Iter *i = list_iter(locals); !iter_end(i);) {
 7/14/18
 -------
 - The function-call parsing is working well (surprisingly), so today I am just finishing up passing the return values and arguments to the proper registers so that the functions actually call one another. Exciting stuff.
+
+*break note: So I just implemented the code gen that moves function parameters to the location that they need to be in once the call is made. This is working. However, there function paramters do not appear to be being passed in correct, they are skipping a step. (e.g. 1, null, 3). I'm not sure why this is happening, but rather than waste time debugging it, I think I'm just going to go use a list instead of a *char[] on those, and that alone could actually clear this up.

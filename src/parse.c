@@ -177,6 +177,7 @@ Ast *read_ref_args(FILE *fp, char *name)
     int i = 0;
     for(;i < MAX_ARGS; i++){
         Token *tok = read_token(fp);
+        if(tok->punct == ',') tok = read_token(fp); 
         if(tok->punct == ')' || tok->punct == ';') break;
         Ast *a = read_primitive(fp, tok);
         args[i] = a;
