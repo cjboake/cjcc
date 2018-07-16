@@ -436,3 +436,21 @@ for (Iter *i = list_iter(locals); !iter_end(i);) {
 
 The issue lies in the fact that for `int e = c + d` I need to allocate the memory, and then perform the addition, and them move it to that memory. I would prefer to simply add them together and feed that to `e`,
 but given that the Ast node doesn't know what the underlying value of the variables is, this may not be possible. Actually, I could check this by looking at the value! Ahoy! I just need to implement a clean function for doing this. The whole code gen phase could use some refactoring.
+
+7/16/18
+-------
+- I fixed an issue regarding function arguments not having a vpos. Everything seems to have issues with the vpos at first.
+- I'm approaching the `int e = c + d` again, and I realized that the best way to do this is just assign `int e = c;` and the `mov e, d`, essentially. This should work better.
+- Another issue is issueing the `ret` statement, after the expression being returned, since the generation recurses down the AST so by the time the expression hits it's too late
+
+
+This one is killing me, so I'm gonna have to rubber-ducky it:
+    - New variables are allocated in [rbp - n]
+    - We need to allocate the space, then handle the value
+    - Afterwards, we need to move that value to the original space
+
+    Option 2:
+    - Take the value, and do the operation on it to consolidate it
+    - Allocate new memory, and simply give it that value
+
+The second one seems to be the easier option here, but I'm just having a hard time conceptualizing this part, for some reason.

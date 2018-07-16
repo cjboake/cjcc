@@ -363,6 +363,24 @@ void handle_pointer(Ast *a, Ast **fbod, Ast **args)
         error("Pointer does not reference valid var.");
 }
 
+// modify to recurse expression
+int check_declaration(Ast *ast)
+{
+    int s = -1;
+    int n = ast->value->type == AST_PLUS || ast->value->type == AST_MINUS;
+    if(ast->value->left != NULL && ast->value->right != NULL)
+        s = ast->value->left->type == AST_VAR && ast->value->right->type == AST_VAR;
+    if(n && s)
+       return 1;
+    return 0;
+}
+
+void assign_varpos(Ast *ast, Ast **args, Ast **fbod)
+{
+    ast->left->vpos = get_vpos(ast->left->name, fbod, args); 
+    ast->right->vpos = get_vpos(ast->right->name, fbod, args); 
+}
+
 Ast *make_fn(Ast *f, FILE *fp)
 {
     int d;
@@ -381,8 +399,14 @@ Ast *make_fn(Ast *f, FILE *fp)
         }else{
             if(a->type != AST_RET) d = find_var(a->name, fbod, f->args);
             if (a->type == AST_REF) expect(fp, ';'); 
-            if(a->type == AST_DECL && !d) a->vpos = pos;
-            if(a->type == AST_VAR) a->value->vpos = get_vpos(a->name, fbod, f->args);   
+            if(a->type == AST_DECL && !d){ 
+                if(check_declaration(a)) assign_varpos(a->value, f->args, fbod); 
+                a->vpos = pos; 
+            }
+            if(a->type == AST_VAR){ 
+                printf("AST_VAR!\n");
+                a->value->vpos = get_vpos(a->name, fbod, f->args);   
+            }
             if (a->type == AST_RET) ret_pos(a->ret_val, fbod, f->args); 
         }
         fbod[i] = a;
