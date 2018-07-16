@@ -429,3 +429,10 @@ for (Iter *i = list_iter(locals); !iter_end(i);) {
 - The function-call parsing is working well (surprisingly), so today I am just finishing up passing the return values and arguments to the proper registers so that the functions actually call one another. Exciting stuff.
 
 *break note: So I just implemented the code gen that moves function parameters to the location that they need to be in once the call is made. This is working. However, there function paramters do not appear to be being passed in correct, they are skipping a step. (e.g. 1, null, 3). I'm not sure why this is happening, but rather than waste time debugging it, I think I'm just going to go use a list instead of a *char[] on those, and that alone could actually clear this up.
+
+7/15/18
+-------
+- Today was very productive, as I fixed the issue with the function argument vpos thing. So now it is producing nearly-correct assembly.
+
+The issue lies in the fact that for `int e = c + d` I need to allocate the memory, and then perform the addition, and them move it to that memory. I would prefer to simply add them together and feed that to `e`,
+but given that the Ast node doesn't know what the underlying value of the variables is, this may not be possible. Actually, I could check this by looking at the value! Ahoy! I just need to implement a clean function for doing this. The whole code gen phase could use some refactoring.

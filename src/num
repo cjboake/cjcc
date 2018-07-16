@@ -1,6 +1,7 @@
 int test(c, d)
 {
-    return c + d;    
+    int e = c + d;
+    return e;    
 }
 
 int main(int a, int b)

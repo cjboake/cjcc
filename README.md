@@ -43,7 +43,7 @@ int main(int a, int b)
     int x = 2;
     int y = 3;
     int c = 1;
-    int *p = &a;
+    int *p = &c;
     return x + y;
 }
 ```

@@ -36,9 +36,9 @@ void emit_intexpr(Ast *ast)
         printf("\tmov   rax, %d\n", ast->ival);
 }
 
-// original emit_op, may not last
 void emit_op(Ast *ast)
 {
+    printf("emit_op\n");
     char *op;
     if(ast->type == AST_PLUS) op = "add";
     if(ast->type == AST_MINUS) op = "sub";
@@ -79,6 +79,11 @@ void alloc_var(Ast *var)
 {
     Tuple *variable = malloc(sizeof(Type));
     variable->name = var->name;
+    if(var->type == AST_PLUS || var->type == AST_PLUS){
+        printf("where we want to be\n");
+        
+        //emit_op(var);
+    }
     if(var->pointer == 1){
         variable->pos = var->value->vpos * 4;
         printf("lea     rax, [rbp - %d]\n\t", var->value->ref_pos * 4);
@@ -88,6 +93,8 @@ void alloc_var(Ast *var)
         printf("mov     dword ptr [rbp - %d], %d\n\t", var->vpos * 4,  var->value->ival);
     }else if(var->type == '+' || var->type == '-'){
         emit_op(var);
+    } else if(var->type == AST_DECL){
+        alloc_var(var->value);
     }
     list_append(VARS, variable);
 }
@@ -128,8 +135,9 @@ void emit_expr(Ast *ast)
         mov_args(ast->args); 
         printf("call \t_%s\n\t", ast->fname);
     }
-    if(ast->type == AST_VAR){
-        printf("We have a var!\n");
+    if(ast->type == AST_VAR){ 
+        printf("we have a var: %s\n\t", ast->name);
+        //alloc_var(ast);
     }
     if(ast->type == AST_RET){
         return_statement(ast->ret_val);
