@@ -1,17 +1,22 @@
 	.section	__TEXT,__text,regular,pure_instructions
 	.macosx_version_min 10, 13
-	.intel_syntax noprefix
 	.globl	_main                   ## -- Begin function main
 	.p2align	4, 0x90
 _main:                                  ## @main
 	
-	push	rbp
-	mov		rbp, rsp
-	mov 	edi, 2
-	mov		esi, 3
-	mov     dword ptr [rbp - 4], edi
-	mov     dword ptr [rbp - 8], esi
-	mov     eax, dword ptr [rbp - 4]
-	add     eax, dword ptr [rbp - 8]	
-    pop 	rbp
-	ret
+	pushq	%rbp
+	movq	%rsp, %rbp
+	
+	movl	$0, -4(%rbp)
+	movl	%edi, -8(%rbp)
+	movq	%rsi, -16(%rbp)
+	
+	movl	$3, -20(%rbp)
+	movl	$1, -24(%rbp)
+	movl	-20(%rbp), %edi
+	
+	addl	-24(%rbp), %edi
+	movl	%edi, %eax
+	
+	popq	%rbp
+	retq

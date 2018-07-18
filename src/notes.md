@@ -454,3 +454,8 @@ This one is killing me, so I'm gonna have to rubber-ducky it:
     - Allocate new memory, and simply give it that value
 
 The second one seems to be the easier option here, but I'm just having a hard time conceptualizing this part, for some reason.
+
+* Well, I got it to work, but for some reason it doesn't feel like much of an accomplishment. Maybe it's just that it seemed like it took me so long, but I just don't really have much confidence in my implementation... Idk. It's done though, so at least can say that.
+
+* -> Fuck
+* I guess this is why: I realized that I have to allocated the new memory regardless, at least if that value is anything other than returned. Goddamn.

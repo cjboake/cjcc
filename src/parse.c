@@ -453,6 +453,9 @@ Ast *rd_expr2(FILE *fp)
         if(check_for(';', fp)) return ast;
         if(check_for('+', fp)){
             Ast *op = make_ast_operator('+');
+            // this would be a good place to have the compiler
+            // do the math instead of just parsing each number into 
+            // a tree
             return make_arith_expr(ast, op, fp);
         } else if(check_for('-', fp)){
             Ast *op = make_ast_operator('-');

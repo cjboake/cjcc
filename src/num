@@ -1,12 +1,6 @@
-int test(c, d)
-{
-    int e = c + d;
-    return e;    
-}
-
 int main(int a, int b)
 {
-    int c = 1;
-    int d = 3;
-    test(c, d);
+    int f = 3;
+    int e = 2;
+    return f + e;
 }
