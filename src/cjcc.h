@@ -70,7 +70,9 @@ enum {
     AST_DECL,
     AST_RET,
     AST_DECLN, // 9
-    AST_REF
+    AST_REF, 
+    AST_PTR,     // assumed declaration
+    AST_PTREF
 };
 
 enum {

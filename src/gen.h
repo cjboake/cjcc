@@ -15,5 +15,6 @@ void alloc_var(Ast *var);
 void emit_func(Ast *ast);
 void compile(List *block);
 void emit_expr(Ast *ast, int i);
+void emit_intexp(Ast *a);
 
 #endif /* LEX.H */

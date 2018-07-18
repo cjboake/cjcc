@@ -237,7 +237,7 @@ Ast *read_decl(FILE *fp, Token *t)
     if(check_for('(', fp)) return read_func_args(fp, name, type); 
     Ast *node = make_ast_var(make_decl(name, type), rd_expr2(fp)); 
     if(is_pointer(node->name)){
-        node->pointer = 1;
+        node->type = AST_PTR;
     }
     return node;
 }
@@ -392,7 +392,7 @@ Ast *make_fn(Ast *f, FILE *fp)
             f->body = fbod; 
             break; 
         }       
-        if(a->pointer == 1){
+        if(a->type == AST_PTR){
             handle_pointer(a, fbod, f->args);
             a->value->vpos = pos;
             a->value->ref_pos = get_vpos(a->value->name, fbod, f->args);  
