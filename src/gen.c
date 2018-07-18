@@ -54,8 +54,7 @@ void print_ret()
 
 void return_statement(Ast *ast)
 {
-    //emit_expr(ast);
-    //printf("mov     eax, dword ptr [rbp - %d]\n\t", ast->vpos*4);
+    //emit_expr(ast->ret_val);
     print_ret();
 }
 

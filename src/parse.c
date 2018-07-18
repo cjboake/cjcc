@@ -179,7 +179,10 @@ Ast *read_ref_args(FILE *fp, char *name)
     for(;i < MAX_ARGS; i++){
         Token *tok = read_token(fp);
         if(tok->punct == ',') tok = read_token(fp); 
-        if(tok->punct == ')' || tok->punct == ';') break;
+        if(tok->punct == ')' || tok->punct == ';'){ 
+            if(tok->punct == ')') expect(fp, ';');
+            break;
+        }
         Ast *a = read_primitive(fp, tok);
         args[i] = a;
     }
@@ -391,14 +394,16 @@ Ast *make_fn(Ast *f, FILE *fp)
         if(!a){
             f->body = fbod; 
             break; 
-        }       
+        }      
         if(a->type == AST_PTR){
             handle_pointer(a, fbod, f->args);
             a->value->vpos = pos;
             a->value->ref_pos = get_vpos(a->value->name, fbod, f->args);  
         }else{
             if(a->type != AST_RET) d = find_var(a->name, fbod, f->args);
-            if (a->type == AST_REF) expect(fp, ';'); 
+            if (a->type == AST_REF){ 
+                expect(fp, ';'); 
+            }
             if(a->type == AST_DECL && !d){ 
                 if(check_declaration(a)) assign_varpos(a->value, f->args, fbod); 
                 a->vpos = pos; 

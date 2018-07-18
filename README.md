@@ -49,7 +49,7 @@ int main(int argc, int argv)
     int f = 3;
     int e = 2;
     int g = f + e;
-    tmp(g, e);
+    return tmp(g, e);
 }
 ```
 Right now it only supports variables of type `int` and `*pointer`. The function is obviously not a proper `main`,
