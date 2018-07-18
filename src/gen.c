@@ -112,17 +112,30 @@ void call_function(Ast *ast)
     printf("call \t_%s\n\t", ast->fname);
 }
 
+void emit_func_header(Ast *ast)
+{
+    printf(".globl  _%s\n", ast->fname);
+    printf(".p2align    4, 0x90\n");
+    printf("_%s:\n", ast->fname);
+    printf("\tpush    rbp\n\t");
+    printf("mov     rbp, rsp\n\t");
+}
+
+void emit_function(Ast *ast)
+{
+    emit_func_header(ast); 
+    alloc_funct_args(ast);
+    for(int i = 0;i < EXPR_LEN; i++) {
+        if(ast->body[i]) emit_expr(ast->body[i]);
+        if(ast->body[i] == NULL) break;
+    }
+}
+
 void emit_expr(Ast *ast)
 {
     switch(ast->type){
-        case AST_FUNC:{     
-            emit_func(ast); 
-            alloc_funct_args(ast);
-            for(int i = 0;i < EXPR_LEN; i++) {
-                if(ast->body[i]) emit_expr(ast->body[i]);
-                if(ast->body[i] == NULL) break;
-                }
-            }
+        case AST_FUNC:    
+            emit_function(ast); 
             break;
         case AST_PLUS:  
             emit_op(ast);
@@ -146,15 +159,6 @@ void emit_expr(Ast *ast)
         default:
             printf("Unrecognized Ast->type\n");
     }
-}
-
-void emit_func(Ast *ast)
-{
-    printf(".globl  _%s\n", ast->fname);
-    printf(".p2align    4, 0x90\n");
-    printf("_%s:\n", ast->fname);
-    printf("\tpush    rbp\n\t");
-    printf("mov     rbp, rsp\n\t");
 }
 
 void assembly_header()

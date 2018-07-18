@@ -36,22 +36,27 @@ without execution.*
 once *cjcc* is ready for more rigorous testing. The same follows
 for `make tests`.
 
-It will compile a simple function such as this one now:
+It will compile a very simple program such as this one now:
 ```
-int main(int a, int b)
+int tmp(int k, int l)
 {
-    int x = 2;
-    int y = 3;
-    int c = 1;
-    int *p = &c;
-    return x + y;
+    int w = k + l;
+    return w; 
+}
+
+int main(int argc, int argv)
+{
+    int f = 3;
+    int e = 2;
+    int g = f + e;
+    tmp(g, e);
 }
 ```
 Right now it only supports variables of type `int` and `*pointer`. The function is obviously not a proper `main`,
 but all that is left to do for that is add the `*char[]` type.
 
 This will currently print the assembly output for the test program, *num*. As this process changes,
-I'll update the instructions to follow. 
+I'll update the instructions to follow. (The above code is valid for `num`) 
 
 The compiler may or may not completely output assembly/execute output (or do so correctly)
 after a given commit, depending on the stage of development, but once it can compile a complete *main* I will begin
