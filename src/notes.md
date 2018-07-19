@@ -475,3 +475,8 @@ The second one seems to be the easier option here, but I'm just having a hard ti
         - Printf system calls
 
 That seems like a manageable amount of work, and will giv me a non-trivial program to compile as a reward.
+
+* Parsing for `if` statements is now working!! That was much easier than anticipated. Next I need to:
+    - Add support for `else` statements
+    - Write a function to see if conditional is true/false
+    - Add code gen

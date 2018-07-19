@@ -278,28 +278,31 @@ int existing_func(char *name)
     return 0;
 }
 
+Ast *handle_if(FILE *fp)
+{
+    expect(fp, '(');
+    Ast *cond = rd_expr2(fp);
+    expect(fp, '{');
+    List *then = read_block(fp);
+    expect(fp, '}'); 
+    
+    // We might not need to return both
+    // Rather, evaluate the condition
+    // Then return the relevant block of code
+    
+    return make_ast_if(cond, then, NULL);
+}
+
 Ast *rd_statement(FILE *fp, Token *tok)
 {
     Ast *a = malloc(sizeof(Ast)); 
     if(is_token_ident(tok, "return")){ 
-        printf("we recognized the return!\n");
         fseek(fp, -1L, SEEK_CUR);
         Ast *r = rd_expr2(fp);
         Ast *mr = make_return(r);
         return mr;
     } else if(is_token_ident(tok, "if")){
-        p("recognized the IF");
-        expect(fp, '(');
-        p("about to read cond");
-        Ast *cond = rd_expr2(fp);
-        printf("cond: %d\n", cond->type);
-        expect(fp, '{');
-        List *then = read_block(fp);
-        expect(fp, '}'); 
-        Ast *a = make_ast_if(cond, then, NULL);
-        p("we read the condition");
-        return a;
-        //return make_ast_if(cond, then, NULL);
+        return handle_if(fp);    
     } else if(check_for('(', fp) && existing_func(tok->sval)){
         char *name = tok->sval;
         return read_ref_args(fp, name);
@@ -419,35 +422,26 @@ Ast *make_fn(Ast *f, FILE *fp)
             f->body = fbod; 
             break; 
         }  
-        printf("made it past !a: %d\n", a->type);
-        if(a->type == AST_IF) p("fuck yeah");
         if(a->type == AST_PTR){
-            p("in the pointer block?");
             handle_pointer(a, fbod, f->args);
             a->value->vpos = pos;
             a->value->ref_pos = get_vpos(a->value->name, fbod, f->args);  
         }else{
             if(a->type != AST_RET && a->type != AST_IF) d = find_var(a->name, fbod, f->args);
             if (a->type == AST_REF){ 
-                p("in the ref block?");
                 expect(fp, ';'); 
             }
             if(a->type == AST_DECL && !d){ 
-                p("in the DECL block?");
                 if(check_declaration(a)) assign_varpos(a->value, f->args, fbod); 
                 a->vpos = pos; 
             }
             if(a->type == AST_VAR){ 
-                printf("AST_VAR!\n");
                 a->value->vpos = get_vpos(a->name, fbod, f->args);   
             }
             if (a->type == AST_RET){ 
-                p("AST_RET");
                 ret_pos(a->ret_val, fbod, f->args);
             }
         }
-        p("made it past if else");
-        printf("a->type: %d\n", a->type);
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }
@@ -476,9 +470,6 @@ Ast *rd_expr2(FILE *fp)
     Ast *ast = read_primitive(fp, tok);
     if(!ast) return NULL;
     if(ast->type == AST_IF){
-        printf("AST IFFFFFFFF\n");
-         
-        printf("ast type: %s\n", ast->name);
         return ast;
     }
     if(ast->type == AST_FUNC){

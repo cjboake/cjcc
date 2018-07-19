@@ -155,6 +155,9 @@ void emit_expr(Ast *ast)
         case AST_RET:        
             return_statement(ast->ret_val);
             break;
+        case AST_IF:
+            printf("IF STATEMENT\n\t");
+            break;
         default:
             printf("Unrecognized Ast->type\n");
     }
