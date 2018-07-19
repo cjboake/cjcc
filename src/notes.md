@@ -459,3 +459,19 @@ The second one seems to be the easier option here, but I'm just having a hard ti
 
 * -> Fuck
 * I guess this is why: I realized that I have to allocated the new memory regardless, at least if that value is anything other than returned. Goddamn.
+
+7/18/18
+-------
+- For the last day or two I've been feeling a little down about my progress because it just seemed like there was so much to cover and the code generation phase was especially difficult. I went through and refactored it a bit though, and things came right together! I also fixed the bug with returning function calls, so it's looking a little more like a real compiler every day!
+
+7/19/18
+-------
+- I've hit sort of the end of one chapter of the compiler, and am ready to start the next one. It has the basic necessary elements (vars, function calls/decls, etc.), so now I think the goal will be to expand it to handle the 8 queens problem, as 8cc did. I think that would be a good test program, and provide the basis for handling more common elements.
+
+    * This will require:
+        - For loops
+        - multiplication
+        - if/else statements
+        - Printf system calls
+
+That seems like a manageable amount of work, and will giv me a non-trivial program to compile as a reward.

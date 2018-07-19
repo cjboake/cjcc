@@ -11,18 +11,24 @@
 
 #define EXPR_LEN 100
 
-List *scan(char *input)
+List *read_block(FILE *fp)
 {
-    FILE *fp;
     Ast *ast;
-    fp = fopen(input, "r");
-    check_file(fp);
     List *block = make_list();
     for(;;){    
         ast = read_expr(fp);
         if(ast) list_append(block, ast);
         if(!ast) break;
     }
+    return block;
+}
+
+List *scan(char *input)
+{
+    FILE *fp;
+    fp = fopen(input, "r");
+    check_file(fp);
+    List *block = read_block(fp);
     return block;
 }
 

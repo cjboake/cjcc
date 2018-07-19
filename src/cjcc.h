@@ -42,6 +42,12 @@ typedef struct Ast {
       struct Ast *decl_var;
       struct Ast *decl_init;
     };
+    // If statement
+    struct {
+        struct Ast *cond;
+        struct List *then;
+        struct List *els;
+    };
     // Return value
     struct {
       struct Ast *ret_val;
@@ -72,7 +78,9 @@ enum {
     AST_DECLN, // 9
     AST_REF, 
     AST_PTR,     // assumed declaration
-    AST_PTREF
+    AST_PTREF,   // 12 
+    AST_ARR, 
+    AST_IF
 };
 
 enum {
@@ -108,6 +116,7 @@ void print_ast(Ast *ast);
 Ast *rd_expr2(FILE *fp);
 void skip_space(FILE *fp); 
 Token *read_token(FILE *fp);
+List *read_block(FILE *fp);
 
 /* DEBUG macros*/
 #ifndef NDEBUG

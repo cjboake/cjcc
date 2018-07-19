@@ -115,7 +115,7 @@ Token *read_token(FILE *fp)
 {
     skip_space(fp);
     int c = fgetc(fp);
-   
+    //printf("C: %c\n", c); 
     if(c == EOF){
         printf("GOT AN EOF\n");
         return NULL;//error("Unexpected EOF\n");

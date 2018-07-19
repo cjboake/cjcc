@@ -125,6 +125,25 @@ Ast *make_ast_node(Ast *l, Ast *r, int op)
     return nd;
 }
 
+Ast *make_ast_func_ref(char *name, Ast **arg)
+{
+    Ast *a = malloc(sizeof(Ast));
+    a->type = AST_REF;
+    a->fname = name;
+    a->args = arg;
+    return a;
+}
+
+Ast *make_ast_if(Ast *cond, List *then, List *els)
+{
+    Ast *r = malloc(sizeof(Ast));
+    r->type = AST_IF;
+    r->cond = cond;
+    r->then = then;
+    r->els = els;
+    return r;
+}
+
 int priority(char op)
 {
     switch(op) {
@@ -135,15 +154,6 @@ int priority(char op)
         default:
             return -1;
     }
-}
-
-Ast *make_ast_func_ref(char *name, Ast **arg)
-{
-    Ast *a = malloc(sizeof(Ast));
-    a->type = AST_REF;
-    a->fname = name;
-    a->args = arg;
-    return a;
 }
 
 Ast *read_func_args(FILE *fp, char *buf, int type)
@@ -194,7 +204,7 @@ int is_type_keyword(Token *tok)
     int r = 0;
     if(tok->type != TTYPE_IDENT)
         return r;
-    char *keywords[] = { "int", "char" };
+    char *keywords[] = { "int", "char", "void" };
     for(int i=0; i < 3; i++) {
         if(!strcmp(keywords[i], tok->sval)){
             return r = 1;  
@@ -272,10 +282,24 @@ Ast *rd_statement(FILE *fp, Token *tok)
 {
     Ast *a = malloc(sizeof(Ast)); 
     if(is_token_ident(tok, "return")){ 
+        printf("we recognized the return!\n");
         fseek(fp, -1L, SEEK_CUR);
         Ast *r = rd_expr2(fp);
         Ast *mr = make_return(r);
         return mr;
+    } else if(is_token_ident(tok, "if")){
+        p("recognized the IF");
+        expect(fp, '(');
+        p("about to read cond");
+        Ast *cond = rd_expr2(fp);
+        printf("cond: %d\n", cond->type);
+        expect(fp, '{');
+        List *then = read_block(fp);
+        expect(fp, '}'); 
+        Ast *a = make_ast_if(cond, then, NULL);
+        p("we read the condition");
+        return a;
+        //return make_ast_if(cond, then, NULL);
     } else if(check_for('(', fp) && existing_func(tok->sval)){
         char *name = tok->sval;
         return read_ref_args(fp, name);
@@ -394,17 +418,22 @@ Ast *make_fn(Ast *f, FILE *fp)
         if(!a){
             f->body = fbod; 
             break; 
-        }      
+        }  
+        printf("made it past !a: %d\n", a->type);
+        if(a->type == AST_IF) p("fuck yeah");
         if(a->type == AST_PTR){
+            p("in the pointer block?");
             handle_pointer(a, fbod, f->args);
             a->value->vpos = pos;
             a->value->ref_pos = get_vpos(a->value->name, fbod, f->args);  
         }else{
-            if(a->type != AST_RET) d = find_var(a->name, fbod, f->args);
+            if(a->type != AST_RET && a->type != AST_IF) d = find_var(a->name, fbod, f->args);
             if (a->type == AST_REF){ 
+                p("in the ref block?");
                 expect(fp, ';'); 
             }
             if(a->type == AST_DECL && !d){ 
+                p("in the DECL block?");
                 if(check_declaration(a)) assign_varpos(a->value, f->args, fbod); 
                 a->vpos = pos; 
             }
@@ -412,8 +441,13 @@ Ast *make_fn(Ast *f, FILE *fp)
                 printf("AST_VAR!\n");
                 a->value->vpos = get_vpos(a->name, fbod, f->args);   
             }
-            if (a->type == AST_RET) ret_pos(a->ret_val, fbod, f->args); 
+            if (a->type == AST_RET){ 
+                p("AST_RET");
+                ret_pos(a->ret_val, fbod, f->args);
+            }
         }
+        p("made it past if else");
+        printf("a->type: %d\n", a->type);
         fbod[i] = a;
         //if(check_for('}', fp)) break;
     }
@@ -441,6 +475,12 @@ Ast *rd_expr2(FILE *fp)
     }
     Ast *ast = read_primitive(fp, tok);
     if(!ast) return NULL;
+    if(ast->type == AST_IF){
+        printf("AST IFFFFFFFF\n");
+         
+        printf("ast type: %s\n", ast->name);
+        return ast;
+    }
     if(ast->type == AST_FUNC){
         ast = make_fn(ast, fp);
         return ast;
@@ -455,12 +495,9 @@ Ast *rd_expr2(FILE *fp)
         return make_ast_operator(ast->type);
     }
     if(ast->type == AST_INT){
-        if(check_for(';', fp)) return ast;
+        if(check_for(';', fp) || check_for(')', fp)) return ast;
         if(check_for('+', fp)){
             Ast *op = make_ast_operator('+');
-            // this would be a good place to have the compiler
-            // do the math instead of just parsing each number into 
-            // a tree
             return make_arith_expr(ast, op, fp);
         } else if(check_for('-', fp)){
             Ast *op = make_ast_operator('-');
@@ -478,7 +515,10 @@ Ast *rd_expr2(FILE *fp)
         if(check_for(';', fp)){
             return ast;
         }
-        if(check_for('=', fp)){ 
+        if(check_for(')', fp)){
+            return ast;
+        }
+        if(check_for('=', fp)){
             return ast->value = rd_expr2(fp);
         }else if(check_for('+', fp)){
             Ast *op = make_ast_operator('+');
