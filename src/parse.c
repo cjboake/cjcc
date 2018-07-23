@@ -486,14 +486,27 @@ Ast *rd_expr2(FILE *fp)
         return make_ast_operator(ast->type);
     }
     if(ast->type == AST_INT){
-        if(check_for(';', fp) || check_for(')', fp)) return ast;
+        if(check_for(';', fp)){ 
+            return ast;
+        }
+        if(check_for(')', fp)){
+            return ast;
+        }
         if(check_for('+', fp)){
             Ast *op = make_ast_operator('+');
             return make_arith_expr(ast, op, fp);
         } else if(check_for('-', fp)){
             Ast *op = make_ast_operator('-');
             return make_arith_expr(ast, op, fp); 
-        }
+        } else if(check_for('<', fp)){
+            printf("ayyy less than!\n");
+            Ast *op = make_ast_operator('<');
+            return make_arith_expr(ast, op, fp);
+        } else if(check_for('>', fp)){
+            printf("ayyy greater than!\n");
+            Ast *op = make_ast_operator('>');
+            return make_arith_expr(ast, op, fp);
+        } 
     }
     if(ast->type == AST_DECL){
         skip_space(fp);
@@ -517,7 +530,13 @@ Ast *rd_expr2(FILE *fp)
         }else if(check_for('-', fp)){
             Ast *op = make_ast_operator('-');
             return make_arith_expr(ast, op, fp); 
-        }  
+        } else if(check_for('<', fp)){
+            Ast *op = make_ast_operator('<');
+            return make_arith_expr(ast, op, fp);
+        } else if(check_for('>', fp)){
+            Ast *op = make_ast_operator('>');
+            return make_arith_expr(ast, op, fp);
+        } 
     }
     skip_space(fp);
     int d = fgetc(fp);

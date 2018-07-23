@@ -480,3 +480,7 @@ That seems like a manageable amount of work, and will giv me a non-trivial progr
     - Add support for `else` statements
     - Write a function to see if conditional is true/false
     - Add code gen
+
+7/21/18
+-------
+Been having a bit of a rough time for the past two days so I didn't push any work on the compiler yesterday. Parsing for the `if` statements is coming along though, and I think I'll go and start on the assemble generation for that. I'll need to parse comparison operators as well, which could of course become a thing, but I don't foresee this being a huge problem (famous last words).

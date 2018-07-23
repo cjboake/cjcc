@@ -79,7 +79,7 @@ Token *read_num(FILE *fp, int n)
     for(;;){
         int c = getc(fp);    
         if(!isdigit(c) || c == ';'){
-            if(c == ';'){
+            if(c == ';' || c == ')'){
                 ungetc(c, fp);
                 Token *tok = make_int_tok(n);
                 return tok;
@@ -138,7 +138,7 @@ Token *read_token(FILE *fp)
         case 'X': case 'Y': case 'Z': case '_': case '*': case '&':
             return read_ident(fp, c);
         case '/': case '=': case '#': case '+': case '-': case '(': case ')':
-        case ',': case ';': case '{': case '}':
+        case ',': case ';': case '{': case '}': case '<': case '>':
             return make_punc_tok(c);
         case EOF:
             return debugger();
