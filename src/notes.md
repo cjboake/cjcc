@@ -484,3 +484,7 @@ That seems like a manageable amount of work, and will giv me a non-trivial progr
 7/21/18
 -------
 Been having a bit of a rough time for the past two days so I didn't push any work on the compiler yesterday. Parsing for the `if` statements is coming along though, and I think I'll go and start on the assemble generation for that. I'll need to parse comparison operators as well, which could of course become a thing, but I don't foresee this being a huge problem (famous last words).
+
+7/23/18
+-------
+Still implementing the code generation for if statements. It's going pretty well, and the idea is there now. The next step is still to implement the ast->then blocks. Essentially, just to handle the jne ETC thing. 

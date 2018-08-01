@@ -80,7 +80,10 @@ enum {
     AST_PTR,     // assumed declaration
     AST_PTREF,   // 12 
     AST_ARR, 
-    AST_IF
+    AST_IF, 
+    AST_GT,      // 15
+    AST_LT, 
+    AST_EQ
 };
 
 enum {

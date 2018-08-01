@@ -130,6 +130,31 @@ void emit_function(Ast *ast)
     }
 }
 
+void emit_cond(Ast *ast)
+{
+    if(ast->left->type == AST_VAR)
+        printf("cmp     dword ptr [rbp - %d], %d\n\t", ast->left->vpos, ast->right->ival);
+    else if(ast->right->type == AST_VAR)
+        printf("cmp     dword ptr [rbp - %d], %d\n\t", ast->left->ival, ast->right->vpos);
+}
+
+void emit_if(Ast *ast)
+{
+    emit_cond(ast->cond); 
+    char *ne = "J2\n";
+    printf("jne %s\n\t", ne);
+    if(ast->then){
+        for (Iter *i = list_iter(ast->then); !iter_end(i);)
+            emit_expr(iter_next(i));
+    }
+    if(ast->els){ 
+        for (Iter *i = list_iter(ast->then); !iter_end(i);)
+            emit_expr(iter_next(i));
+    }
+}
+
+// Need to go through and implement variable references
+// I don't remember how I labeled them right now though
 void emit_expr(Ast *ast)
 {
     switch(ast->type){
@@ -152,14 +177,14 @@ void emit_expr(Ast *ast)
             printf("\n\t");
             //alloc_var(ast);
             break;
+        case AST_IF:
+            emit_if(ast);
+            break;
         case AST_RET:        
             return_statement(ast->ret_val);
             break;
-        case AST_IF:
-            printf("IF STATEMENT\n\t");
-            break;
         default:
-            printf("Unrecognized Ast->type\n");
+            printf("Unrecognized Ast->type: %d\n\t", ast->ival);
     }
 }
 

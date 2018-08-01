@@ -18,6 +18,12 @@ Ast *make_ast_operator(int type)
         op->type = AST_PLUS;
     else if(type == '-')
         op->type = AST_MINUS; 
+    else if(type == '>')
+        op->type = AST_GT;
+    else if(type == '<')
+        op->type = AST_LT;
+    else
+        p("Unrecognized operator!");
     return op;
 }
 
@@ -285,10 +291,6 @@ Ast *handle_if(FILE *fp)
     expect(fp, '{');
     List *then = read_block(fp);
     expect(fp, '}'); 
-    
-    // We might not need to return both
-    // Rather, evaluate the condition
-    // Then return the relevant block of code
     
     return make_ast_if(cond, then, NULL);
 }
